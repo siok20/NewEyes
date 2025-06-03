@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">NewEyes</string>
+    <string name="iniciar_nnavegaci_n_npor_voz">Iniciar\nnavegación\npor voz</string>
+    <string name="settings">Settings</string>
+    <string name="eyes">Eyes</string>
+    <string name="new_title">New</string>
+    <string name="destino">Destino: ...</string>
+    <string name="activar_micr_fono">Activar micrófono</string>
 </resources>

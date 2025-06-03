@@ -1,19 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#000000"
     tools:context=".MainActivity">
 
+    <!-- Título "New Eyes" -->
     <TextView
+        android:id="@+id/titleNew"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="@string/new_title"
+        android:textSize="48sp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:typeface="serif"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/titleEyes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/eyes"
+        android:textSize="48sp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:typeface="serif"
+        android:layout_below="@id/titleNew"
+        android:layout_centerHorizontal="true" />
+
+    <!-- Botón "Iniciar navegación por voz" -->
+    <Button
+        android:id="@+id/btnVoiceNav"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="@string/iniciar_nnavegaci_n_npor_voz"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        android:backgroundTint="#60D2C6"
+        android:layout_centerHorizontal="true"
+        android:typeface="serif"
+        android:layout_below="@id/titleEyes"
+        android:layout_marginTop="80dp"
+        android:padding="16dp" />
+
+    <!-- Icono de engranaje (usando emoji como recurso temporal) -->
+    <ImageButton
+        android:id="@+id/btnSettings"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+        android:src="@drawable/settings"
+    android:background="@android:color/transparent"
+    android:scaleType="fitCenter"
+    android:adjustViewBounds="true"
+    android:contentDescription="Configuración" />
+
+
+</RelativeLayout>
