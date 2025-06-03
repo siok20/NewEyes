@@ -6,4 +6,5 @@
     <string name="new_title">New</string>
     <string name="destino">Destino: ...</string>
     <string name="activar_micr_fono">Activar micrófono</string>
+    <string name="configuraci_n">Configuración</string>
 </resources>

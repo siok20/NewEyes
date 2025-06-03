@@ -56,10 +56,8 @@
         android:layout_alignParentEnd="true"
         android:layout_margin="16dp"
         android:src="@drawable/settings"
-    android:background="@android:color/transparent"
-    android:scaleType="fitCenter"
-    android:adjustViewBounds="true"
-    android:contentDescription="Configuración" />
-
-
+        android:background="@android:color/transparent"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/configuraci_n" />
 </RelativeLayout>

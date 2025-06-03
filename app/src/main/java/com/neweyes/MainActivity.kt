@@ -2,15 +2,15 @@ package com.neweyes
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.neweyes.databinding.ActivityMainBinding
-import com.neweyes.databinding.ActivityVoiceBinding
 
 class MainActivity : AppCompatActivity() {
-    lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,9 +27,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnSettings.setOnClickListener {
-            // Aquí podrías abrir una actividad de configuración, si existe
-            // Por ahora solo mostramos un ejemplo con un toast
-            // Toast.makeText(this, "Abrir configuración", Toast.LENGTH_SHORT).show()
+           Toast.makeText(this, "Abrir configuración", Toast.LENGTH_SHORT).show()
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
