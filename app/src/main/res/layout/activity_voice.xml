@@ -22,24 +22,40 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_below="@id/tvDestino"
-        android:layout_above="@id/btnMic"
+        android:layout_above="@id/bottomControls"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:scaleType="fitCenter"
         android:background="#777777"/>
 
 
-    <!-- Botón con ícono de micrófono -->
-    <ImageButton
-        android:id="@+id/btnMic"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+    <!-- Layout horizontal para vista de mapa y mic -->
+    <LinearLayout
+        android:id="@+id/bottomControls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/round_button_bg"
-        android:src="@drawable/microphone"
-        android:scaleType="centerInside"
-        android:padding="16dp"
-        android:contentDescription="@string/activar_micr_fono" />
+        android:gravity="center"
+        android:layout_marginBottom="16dp">
+
+        <ImageButton
+            android:id="@+id/btnMic"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/round_button_bg"
+            android:src="@drawable/microphone"
+            android:scaleType="centerInside"
+            android:padding="16dp"
+            android:contentDescription="@string/activar_micr_fono" />
+
+        <FrameLayout
+            android:id="@+id/mapContainer"
+            android:layout_width="0dp"
+            android:layout_height="120dp"
+            android:layout_weight="1"
+            android:background="#333" />
+    </LinearLayout>
 </RelativeLayout>
