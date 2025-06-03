@@ -17,18 +17,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp" />
 
-    <TextView
-        android:id="@+id/tvSpeechResult"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="..."
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:layout_below="@id/tvDestino"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"/>
-
-
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
         android:layout_width="match_parent"
