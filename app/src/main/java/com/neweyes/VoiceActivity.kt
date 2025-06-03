@@ -1,33 +1,39 @@
 package com.neweyes
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.neweyes.databinding.ActivityVoiceBinding
 import androidx.activity.viewModels
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.SupportMapFragment
-import com.neweyes.camera.CameraViewModel
-import com.neweyes.voice.VoiceViewModel
-import android.Manifest.permission.ACCESS_FINE_LOCATION
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-
+import com.neweyes.camera.CameraViewModel
+import com.neweyes.databinding.ActivityVoiceBinding
+import com.neweyes.voice.VoiceViewModel
 
 class VoiceActivity : AppCompatActivity(), OnMapReadyCallback {
-    private lateinit var binding: ActivityVoiceBinding
 
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1001
+        private const val RECORD_AUDIO_PERMISSION_REQUEST_CODE = 1002
+        private const val CAMERA_PERMISSION_REQUEST_CODE = 1003
+    }
+
+    private lateinit var binding: ActivityVoiceBinding
     private val cameraViewModel: CameraViewModel by viewModels()
-    private val viewModel: VoiceViewModel by viewModels()
-    private lateinit var map: GoogleMap
+    private val voiceViewModel: VoiceViewModel by viewModels()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var map: GoogleMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,21 +42,43 @@ class VoiceActivity : AppCompatActivity(), OnMapReadyCallback {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        cameraViewModel.initCamera(binding.previewView, this)
-
-        viewModel.voiceText.observe(this) { text ->
-            binding.tvDestino.text = text
+        // 1) Verificar permiso de cámara antes de inicializar
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            cameraViewModel.initCamera(binding.previewView, this)
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.CAMERA),
+                CAMERA_PERMISSION_REQUEST_CODE
+            )
         }
 
-        viewModel.error.observe(this) { errorMsg ->
+        // 2) Observadores para reconocimiento de voz
+        voiceViewModel.voiceText.observe(this) { text ->
+            binding.tvDestino.text = text
+        }
+        voiceViewModel.error.observe(this) { errorMsg ->
             Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
         }
 
+        // 3) Botón micrófono: verifica permiso de audio
         binding.btnMic.setOnClickListener {
-            viewModel.startListening()
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                == PackageManager.PERMISSION_GRANTED
+            ) {
+                voiceViewModel.startListening()
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.RECORD_AUDIO),
+                    RECORD_AUDIO_PERMISSION_REQUEST_CODE
+                )
+            }
         }
 
-        // Iniciar mapa de Google
+        // 4) Cargar Google Maps
         val mapFragment = SupportMapFragment.newInstance()
         supportFragmentManager.beginTransaction()
             .replace(binding.mapContainer.id, mapFragment)
@@ -60,35 +88,76 @@ class VoiceActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        enableMyLocation()
+        checkLocationPermissionAndEnable()
+    }
 
-        if (ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    val currentLatLng = LatLng(location.latitude, location.longitude)
-                    val cameraPosition = CameraPosition.Builder()
-                        .target(currentLatLng)
-                        .zoom(17f)
-                        .build()
-                    map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-                }
-            }
+    private fun checkLocationPermissionAndEnable() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            enableLocationFeatures()
         } else {
-            // Opcional: manejar caso sin permiso
-            Toast.makeText(this, "Permiso de ubicación no concedido", Toast.LENGTH_SHORT).show()
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
         }
     }
 
-
-
     @SuppressLint("MissingPermission")
-    private fun enableMyLocation() {
-        if (ContextCompat.checkSelfPermission(this,ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            map.isMyLocationEnabled = true
-        } else {
-            requestPermissions(arrayOf(ACCESS_FINE_LOCATION), 1001)
+    private fun enableLocationFeatures() {
+        map.isMyLocationEnabled = true
+
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                val latLng = LatLng(location.latitude, location.longitude)
+                val cameraPosition = CameraPosition.Builder()
+                    .target(latLng)
+                    .zoom(17f)
+                    .build()
+                map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+            }
+        }
+    }
+
+    // Maneja la respuesta de TODOS los permisos que pedimos
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        when (requestCode) {
+            // ----------------------------- Cámara -----------------------------
+            CAMERA_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Se concedió el permiso de cámara: inicializamos CameraX
+                    cameraViewModel.initCamera(binding.previewView, this)
+                } else {
+                    Toast.makeText(this, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            // --------------------------- Micrófono ----------------------------
+            RECORD_AUDIO_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Se concedió RECORD_AUDIO: iniciamos reconocimiento de voz
+                    voiceViewModel.startListening()
+                } else {
+                    Toast.makeText(this, "Permiso de micrófono denegado", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            // -------------------------- Ubicación -----------------------------
+            LOCATION_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    enableLocationFeatures()
+                } else {
+                    Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 }
