@@ -47,6 +47,20 @@
         android:layout_marginTop="80dp"
         android:padding="16dp" />
 
+    <Button
+        android:id="@+id/btnChatNav"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="Entrar al chat"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        android:backgroundTint="#60D2C6"
+        android:layout_centerHorizontal="true"
+        android:typeface="serif"
+        android:layout_below="@id/btnVoiceNav"
+        android:layout_marginTop="80dp"
+        android:padding="16dp" />
+
     <!-- Icono de engranaje (usando emoji como recurso temporal) -->
     <ImageButton
         android:id="@+id/btnSettings"

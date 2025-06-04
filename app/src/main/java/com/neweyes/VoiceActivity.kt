@@ -7,8 +7,11 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -21,7 +24,7 @@ import com.neweyes.camera.CameraViewModel
 import com.neweyes.databinding.ActivityVoiceBinding
 import com.neweyes.voice.VoiceViewModel
 
-class VoiceActivity : AppCompatActivity(), OnMapReadyCallback {
+class VoiceActivity : BaseActivity(), OnMapReadyCallback {
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1001
@@ -36,6 +39,18 @@ class VoiceActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (PreferenceManager.isHighContrast(this)) {
+            setTheme(R.style.AppTheme_HighContrast)
+        } else {
+            setTheme(R.style.AppTheme)
+        }
+
+        val darkMode = PreferenceManager.isDarkMode(this)
+        AppCompatDelegate.setDefaultNightMode(
+            if (darkMode) AppCompatDelegate.MODE_NIGHT_YES
+            else AppCompatDelegate.MODE_NIGHT_NO
+        )
+
         super.onCreate(savedInstanceState)
         binding = ActivityVoiceBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -84,6 +99,12 @@ class VoiceActivity : AppCompatActivity(), OnMapReadyCallback {
             .replace(binding.mapContainer.id, mapFragment)
             .commit()
         mapFragment.getMapAsync(this)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
