@@ -103,8 +103,7 @@
 
             <RadioButton
                 android:id="@+id/rbContinua"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Continua"
                 android:textColor="#FFFFFF"
@@ -112,13 +111,22 @@
 
             <RadioButton
                 android:id="@+id/rbIntermitente"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Intermitente"
                 android:textColor="#FFFFFF"
                 android:buttonTint="#2196F3" />
+
+            <RadioButton
+                android:id="@+id/rbPulsante"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pulsante"
+                android:textColor="#FFFFFF"
+                android:buttonTint="#2196F3" />
+
         </RadioGroup>
+
 
         <!-- - ALTO CONTRASTE - -->
         <TextView
@@ -133,6 +141,7 @@
             android:id="@+id/switchContraste"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="#777777"
             android:layout_marginBottom="24dp" />
 
         <!-- - VELOCIDAD DE VOZ (TTS) - -->
@@ -202,6 +211,7 @@
         <Switch
             android:id="@+id/switchTheme"
             android:layout_width="wrap_content"
+            android:background="#777777"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp" />
 
