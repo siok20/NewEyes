@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/chat_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/chat_background">
+
+    <!-- RecyclerView para mostrar mensajes -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_messages"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/input_height"
+        android:paddingTop="@dimen/margin_bubble"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <!-- Línea separadora opcional justo encima del área de input -->
+    <View
+        android:id="@+id/divider_input"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/container_input"
+        />
+
+    <!-- Contenedor de la parte inferior: EditText + Botón -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_input"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/input_height"
+        android:background="@color/input_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Campo de texto para escribir mensaje -->
+        <EditText
+            android:id="@+id/edit_text_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/input_margin"
+            android:layout_marginLeft="@dimen/input_margin"
+            android:layout_marginTop="@dimen/input_margin"
+            android:layout_marginBottom="@dimen/input_margin"
+            android:layout_marginEnd="@dimen/input_margin"
+            android:hint="Escribe un mensaje..."
+            android:paddingStart="@dimen/padding_bubble"
+            android:paddingEnd="@dimen/padding_bubble"
+            android:imeOptions="actionSend"
+            android:maxLines="4"
+            android:inputType="textMultiLine"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/buttonMic"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+        <!-- Botón de envío (puede ser ImageButton con icono de avión de papel) -->
+        <ImageButton
+            android:id="@+id/button_send"
+            android:layout_width="@dimen/send_icon_size"
+            android:layout_height="@dimen/send_icon_size"
+            android:layout_marginEnd="@dimen/input_margin"
+            android:contentDescription="Enviar"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/bubble_user" />
+
+        <ImageButton
+            android:id="@+id/buttonMic"
+            android:layout_width="@dimen/send_icon_size"
+            android:layout_height="@dimen/send_icon_size"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Micrófono"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintEnd_toStartOf="@id/button_send"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/bubble_user" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

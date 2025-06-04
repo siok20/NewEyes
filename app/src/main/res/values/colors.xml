@@ -2,4 +2,11 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="chat_background">#F5F5F5</color>
+    <color name="bubble_user">#DCF8C6</color>
+    <color name="bubble_other">#FFFFFF</color>
+    <color name="text_user">#000000</color>
+    <color name="text_other">#000000</color>
+    <color name="input_background">#FFFFFF</color>
+    <color name="divider">#E0E0E0</color>
 </resources>

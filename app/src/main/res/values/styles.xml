@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <style name="ChatMessageText">
+            <item name="android:textSize">@dimen/text_size_message</item>
+            <item name="android:textColor">@color/text_other</item>
+        </style>
+        <style name="ChatMessageTextUser">
+            <item name="android:textSize">@dimen/text_size_message</item>
+            <item name="android:textColor">@color/text_user</item>
+        </style>
+</resources>
