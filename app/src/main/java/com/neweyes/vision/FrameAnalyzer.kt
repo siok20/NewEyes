@@ -2,7 +2,8 @@ package com.neweyes.vision
 
 import android.graphics.ImageFormat
 import android.media.Image
-import android.util.Log
+import androidx.annotation.OptIn
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import java.nio.ByteBuffer
@@ -11,6 +12,7 @@ class FrameAnalyzer(
     private val onObstacleDetected: (Boolean) -> Unit
 ) : ImageAnalysis.Analyzer {
 
+    @OptIn(ExperimentalGetImage::class)
     override fun analyze(image: ImageProxy) {
         val img = image.image
         if (img != null && img.format == ImageFormat.YUV_420_888) {

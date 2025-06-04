@@ -1,7 +1,6 @@
 package com.neweyes.camera
 
 import android.content.Context
-import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
