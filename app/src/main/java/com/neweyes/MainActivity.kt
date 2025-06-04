@@ -27,7 +27,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnSettings.setOnClickListener {
-           Toast.makeText(this, "Abrir configuración", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, FlowActivity::class.java)
+            startActivity(intent)
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->

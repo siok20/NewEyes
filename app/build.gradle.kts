@@ -72,4 +72,6 @@ dependencies {
     implementation(libs.androidx.camera.extensions)
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
 }
