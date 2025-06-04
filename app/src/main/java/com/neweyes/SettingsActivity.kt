@@ -3,149 +3,202 @@ package com.neweyes
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.VibrationEffect
 import android.os.Vibrator
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.neweyes.databinding.ActivitySettingsBinding
+import com.neweyes.vibration.*
 import java.util.*
 
-
-class SettingsActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
+class SettingsActivity : BaseActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var prefs: SharedPreferences
     private lateinit var tts: TextToSpeech
     private lateinit var vibrator: Vibrator
+    private lateinit var vibrationModel: VibrationViewModel
+
+    private var primeraCarga = true
+
+    private val TAG = "SettingsActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        val isDarkMode = PreferenceManager.isDarkMode(this)
+        val isHighContrast = PreferenceManager.isHighContrast(this)
 
-        // Inflate con View Binding
+        // Configura el modo oscuro ANTES de setTheme()
+        AppCompatDelegate.setDefaultNightMode(
+            if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
+            else AppCompatDelegate.MODE_NIGHT_NO
+        )
+
+        // Aplica el tema correcto antes de inflar la vista
+        if (isDarkMode && isHighContrast) {
+            setTheme(R.style.AppTheme_Dark_HighContrast)
+        } else if (isDarkMode) {
+            setTheme(R.style.AppTheme_Dark)
+        } else if (isHighContrast) {
+            setTheme(R.style.AppTheme_Light_HighContrast)
+        } else {
+            setTheme(R.style.AppTheme_Light)
+        }
+
+        super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate - Inicio")
+        Toast.makeText(this, "SettingsActivity: onCreate", Toast.LENGTH_SHORT).show()
+
+        // 0) Inflar con View Binding
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Inicializar SharedPreferences
+        // 1) Inicializar SharedPreferences
         prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
+        Log.d(TAG, "SharedPreferences inicializadas")
 
-        // Inicializar TTS
+        // 2) Inicializar TTS
         tts = TextToSpeech(this, this)
+        Log.d(TAG, "TextToSpeech inicializado (pendiente onInit)")
 
-        // Inicializar Vibrator
+        // 3) Inicializar Vibrator
         vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        Log.d(TAG, "Vibrator inicializado")
 
-        // 1) CARGAR VALORES PREVIOS
+        // 4) Cargar valores previos en los controles
         cargarPreferencias()
 
-        // 2) CONFIGURAR LISTENERS PARA DESCRIPCIONES EN AUDIO (cuando toquen cada label o control)
+        // 5) Asignar descripciones en audio para cada control
         asignarDescripcionesAudio()
 
+        // 6) Listener unificado para botón “Probar vibración”
+        val vibrationManager = VibrationManager(this)
+        vibrationModel = VibrationViewModel(vibrationManager)
+
         binding.btnTestVibration.setOnClickListener {
-            // 1) Determinar amplitud según RadioGroup de intensidad
-            //    (0–255 es el rango válido para amplitudes en API ≥ 26)
-            val intensidadValor = when (binding.rgIntensidad.checkedRadioButtonId) {
-                binding.rbMedia.id -> VibrationEffect.DEFAULT_AMPLITUDE / 2  // ~127
-                binding.rbAlta.id  -> VibrationEffect.DEFAULT_AMPLITUDE      // 255
-                else               -> VibrationEffect.DEFAULT_AMPLITUDE / 4  // ~63
-            }.toInt()
-
-            // 2) Verificar tipo de vibración (continua vs intermitente)
-            val esContinua = (binding.rgTipo.checkedRadioButtonId == binding.rbContinua.id)
-
-            // 3) Si la versión de Android es >= Oreo (API 26), uso VibrationEffect
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                if (esContinua) {
-                    // VIBRACIÓN CONTINUA: un pulso de 300 ms
-                    val effect = VibrationEffect.createOneShot(
-                        300L,           // duración en ms
-                        intensidadValor // amplitud (0–255)
-                    )
-                    vibrator.vibrate(effect)
-
-                } else {
-                    // VIBRACIÓN INTERMITENTE: ON 100 ms, OFF 100 ms, ON 100 ms
-                    val pattern = longArrayOf(
-                        0L,   // sin retardo inicial
-                        100L, // ON 100 ms
-                        100L, // OFF 100 ms
-                        100L  // ON 100 ms
-                    )
-                    // amplitudes: el primer 0 es el retardo, luego intensidad/off/intensidad
-                    val amplitudes = intArrayOf(
-                        0,                // retardo: 0
-                        intensidadValor,  // ON
-                        0,                // OFF
-                        intensidadValor   // ON
-                    )
-                    val effect = VibrationEffect.createWaveform(pattern, amplitudes, /*repeat*/ -1)
-                    vibrator.vibrate(effect)
-                }
-
-            } else {
-                // 4) Si es API < 26, uso la versión simple vibrator.vibrate(duración)
-                if (esContinua) {
-                    vibrator.vibrate(300L) // 300 ms de vibración “continua”
-                } else {
-                    // “Intermitente” ⇒ hago dos pulsos cortos manualmente
-                    // (no puedo controlar amplitud, sólo duración y pausas)
-                    vibrator.vibrate(longArrayOf(0L, 100L, 100L, 100L), /*repeat*/ -1)
-                    // Si quisieras detenerlo manualmente tras un tiempo, podrías usar un Handler.
-                    // Por simplicidad, aquí lo dejo corriendo indefinidamente,
-                    // pero en API <26 no se controla amplitud y no podemos usar createWaveform con amplitud.
-                    // Si prefieres apagarlo después de 300 ms en API <26, podrías programar:
-                    // Handler(Looper.getMainLooper()).postDelayed({ vibrator.cancel() }, 300L)
-                }
+            VibrationSettings.type = when (binding.rgTipo.checkedRadioButtonId) {
+                binding.rbContinua.id -> VibrationType.CONTINUA
+                binding.rbIntermitente.id -> VibrationType.INTERMITENTE
+                binding.rbPulsante.id -> VibrationType.PULSANTE
+                else -> VibrationType.CONTINUA
             }
+
+            VibrationSettings.intensity = when (binding.rgIntensidad.checkedRadioButtonId) {
+                binding.rbMedia.id -> VibrationIntensity.MEDIA
+                binding.rbAlta.id -> VibrationIntensity.ALTA
+                else -> VibrationIntensity.SUAVE
+            }
+
+            vibrationModel.testVibration()
         }
 
 
 
-        // 4) SWITCH MODO OSCURO / CLARO
+        // 7) Switch Modo Oscuro / Claro
+        binding.switchTheme.setOnCheckedChangeListener(null)
+        binding.switchTheme.isChecked = isDarkMode
         binding.switchTheme.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            Log.d(TAG, "switchTheme cambiado: isChecked=$isChecked")
+            Toast.makeText(this, "Modo oscuro: $isChecked", Toast.LENGTH_SHORT).show()
+
+            if (!primeraCarga && isChecked != isDarkMode) {
+                PreferenceManager.setDarkMode(this, isChecked)
+                recreate()
+            } else if (primeraCarga) {
+                // Solo guardar al inicio para que se mantenga sin recrear
+                PreferenceManager.setDarkMode(this, isChecked)
             }
         }
 
-        // 5) BOTÓN "Restaurar configuración"
-        binding.btnResetDefaults.setOnClickListener {
-            prefs.edit().clear().apply()
-            cargarPreferencias() // recargar para volver a valores por defecto
+
+        //8)
+        binding.switchContraste.setOnCheckedChangeListener(null)
+        binding.switchContraste.isChecked = isHighContrast
+        binding.switchContraste.setOnCheckedChangeListener { _, isChecked ->
+            if (!primeraCarga && isChecked != isHighContrast) {
+                PreferenceManager.setHighContrast(this, isChecked)
+                recreate()
+            } else if (primeraCarga) {
+                PreferenceManager.setHighContrast(this, isChecked)
+            }
         }
 
-        // 6) BOTÓN "Guardar y volver"
-        binding.btnGuardar.setOnClickListener {
-            guardarPreferencias()
-            finish() // cierra esta Activity y vuelve a la anterior
+        primeraCarga = false
+
+
+
+        // 9) Botón “Restaurar configuración”
+        binding.btnResetDefaults.setOnClickListener {
+            Log.d(TAG, "btnResetDefaults clickeado")
+            Toast.makeText(this, "Restaurando valores por defecto", Toast.LENGTH_SHORT).show()
+            prefs.edit().clear().apply()
+            Log.d(TAG, "SharedPreferences limpiadas")
+            cargarPreferencias()
         }
+
+        // 10) Botón “Guardar y volver”
+        binding.btnGuardar.setOnClickListener {
+            Log.d(TAG, "btnGuardar clickeado")
+            guardarPreferencias()
+            Toast.makeText(this, "Guardando cambios y volviendo", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+
+        Log.d(TAG, "onCreate - Fin")
     }
 
     override fun onInit(status: Int) {
+        Log.d(TAG, "onInit de TextToSpeech - status = $status")
+        Toast.makeText(this, "TTS onInit status: $status", Toast.LENGTH_SHORT).show()
         if (status == TextToSpeech.SUCCESS) {
             // Establecer idioma TTS (por defecto: español de España)
-            tts.language = Locale("es", "ES")
-            tts.setSpeechRate(obtenerTasaHabla())
+            val resultado = tts.setLanguage(Locale("es", "ES"))
+            Log.d(TAG, "TTS setLanguage resultado = $resultado")
+            if (resultado == TextToSpeech.LANG_MISSING_DATA || resultado == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e(TAG, "Idioma TTS no soportado o faltan datos")
+                Toast.makeText(this, "Idioma TTS no soportado", Toast.LENGTH_LONG).show()
+            }
+            // Ajustar tasa inicial según lo que haya cargado en las preferencias
+            val tasaInicial = obtenerTasaHabla()
+            tts.setSpeechRate(tasaInicial)
+            Log.d(TAG, "TTS setSpeechRate = $tasaInicial")
+        } else {
+            Log.e(TAG, "Error al inicializar TTS (status != SUCCESS)")
+            Toast.makeText(this, "Error al inicializar TTS", Toast.LENGTH_LONG).show()
         }
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        Log.d(TAG, "onDestroy - limpiando TTS y Vibrator")
         tts.stop()
         tts.shutdown()
+        vibrator.cancel() // Detener cualquier vibración residual
+        super.onDestroy()
     }
 
+    override fun recreate() {
+        overridePendingTransition(0, 0)
+        super.recreate()
+        overridePendingTransition(0, 0)
+    }
+
+
     // -------------------------
-    // Función para cargar todas las preferencias
+    // Carga todas las preferencias y actualiza los controles
     // -------------------------
     private fun cargarPreferencias() {
+        Log.d(TAG, "cargarPreferencias - Inicio")
+        Toast.makeText(this, "cargarPreferencias", Toast.LENGTH_SHORT).show()
+
         // Idioma
         val idiomaGuardado = prefs.getString("idioma", "Español") ?: "Español"
+        Log.d(TAG, "Idioma guardado: $idiomaGuardado")
         val listaIdiomas = listOf("Español", "Inglés")
-        val adapter = android.widget.ArrayAdapter(
+        val adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_dropdown_item,
             listaIdiomas
@@ -155,62 +208,86 @@ class SettingsActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding.spinnerIdioma.setSelection(indexIdioma)
 
         // Intensidad de vibración
-        when (prefs.getString("intensidad", "Suave")) {
+        val intensidadGuardada = prefs.getString("intensidad", "Suave")
+        Log.d(TAG, "Intensidad guardada: $intensidadGuardada")
+        when (intensidadGuardada) {
             "Media" -> binding.rgIntensidad.check(binding.rbMedia.id)
-            "Alta" -> binding.rgIntensidad.check(binding.rbAlta.id)
-            else -> binding.rgIntensidad.check(binding.rbSuave.id)
+            "Alta"  -> binding.rgIntensidad.check(binding.rbAlta.id)
+            else    -> binding.rgIntensidad.check(binding.rbSuave.id)
         }
 
         // Tipo de vibración
-        when (prefs.getString("tipo", "Continua")) {
+        val tipoGuardado = prefs.getString("tipo", "Continua")
+        Log.d(TAG, "Tipo vibración guardado: $tipoGuardado")
+        when (tipoGuardado) {
             "Intermitente" -> binding.rgTipo.check(binding.rbIntermitente.id)
-            else -> binding.rgTipo.check(binding.rbContinua.id)
+            else           -> binding.rgTipo.check(binding.rbContinua.id)
         }
 
         // Alto contraste
-        binding.switchContraste.isChecked = prefs.getBoolean("contraste", false)
+        val contrasteGuardado = prefs.getBoolean("contraste", false)
+        Log.d(TAG, "Contraste guardado: $contrasteGuardado")
+        binding.switchContraste.isChecked = contrasteGuardado
+        // Aquí podrías aplicar inmediatamente tu tema de alto contraste si lo necesitas
 
         // Velocidad de voz
-        when (prefs.getString("velocidad", "Normal")) {
-            "Lenta" -> binding.rgVelocidad.check(binding.rbLenta.id)
+        val velocidadGuardada = prefs.getString("velocidad", "Normal")
+        Log.d(TAG, "Velocidad TTS guardada: $velocidadGuardada")
+        when (velocidadGuardada) {
+            "Lenta"  -> binding.rgVelocidad.check(binding.rbLenta.id)
             "Rápida" -> binding.rgVelocidad.check(binding.rbRapida.id)
-            else -> binding.rgVelocidad.check(binding.rbNormal.id)
+            else     -> binding.rgVelocidad.check(binding.rbNormal.id)
         }
 
         // Tema: modo oscuro
         val modoOscuro = prefs.getBoolean("modo_oscuro", false)
+        Log.d(TAG, "Modo oscuro guardado: $modoOscuro")
         binding.switchTheme.isChecked = modoOscuro
         if (modoOscuro) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
+
+        Log.d(TAG, "cargarPreferencias - Fin")
     }
 
     // -------------------------
-    // Función para guardar todas las preferencias
+    // Guarda todas las preferencias según el estado actual de los controles
     // -------------------------
     private fun guardarPreferencias() {
+        Log.d(TAG, "guardarPreferencias - Inicio")
+        Toast.makeText(this, "guardando preferencias...", Toast.LENGTH_SHORT).show()
+
         val idiomaSeleccionado = binding.spinnerIdioma.selectedItem.toString()
+        Log.d(TAG, "Idioma seleccionado para guardar: $idiomaSeleccionado")
+
         val intensidadSeleccionada = when (binding.rgIntensidad.checkedRadioButtonId) {
             binding.rbMedia.id -> "Media"
-            binding.rbAlta.id -> "Alta"
-            else -> "Suave"
+            binding.rbAlta.id  -> "Alta"
+            else               -> "Suave"
         }
+        Log.d(TAG, "Intensidad seleccionada para guardar: $intensidadSeleccionada")
+
         val tipoSeleccionado = if (binding.rgTipo.checkedRadioButtonId == binding.rbIntermitente.id) {
             "Intermitente"
         } else {
             "Continua"
         }
+        Log.d(TAG, "Tipo de vibración seleccionado para guardar: $tipoSeleccionado")
+
         val contraste = binding.switchContraste.isChecked
+        Log.d(TAG, "Contraste para guardar: $contraste")
 
         val velocidadSeleccionada = when (binding.rgVelocidad.checkedRadioButtonId) {
-            binding.rbLenta.id -> "Lenta"
+            binding.rbLenta.id  -> "Lenta"
             binding.rbRapida.id -> "Rápida"
-            else -> "Normal"
+            else                -> "Normal"
         }
+        Log.d(TAG, "Velocidad TTS para guardar: $velocidadSeleccionada")
 
         val modoOscuro = binding.switchTheme.isChecked
+        Log.d(TAG, "Modo oscuro para guardar: $modoOscuro")
 
         prefs.edit()
             .putString("idioma", idiomaSeleccionado)
@@ -220,6 +297,7 @@ class SettingsActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             .putString("velocidad", velocidadSeleccionada)
             .putBoolean("modo_oscuro", modoOscuro)
             .apply()
+        Log.d(TAG, "guardarPreferencias - Fin")
     }
 
     // -------------------------
@@ -227,82 +305,119 @@ class SettingsActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     // -------------------------
     private fun obtenerTasaHabla(): Float {
         return when (binding.rgVelocidad.checkedRadioButtonId) {
-            binding.rbLenta.id -> 0.75f
+            binding.rbLenta.id  -> 0.75f
             binding.rbRapida.id -> 1.25f
-            else -> 1.0f // Normal
+            else                -> 1.0f // Normal
         }
     }
 
     // -------------------------
-    // Asigna listeners para que, al tocar cada etiqueta o control, se reproduzca su descripción en audio
+    // Asigna listeners para que, al interactuar con cada control, se reproduzca su descripción en audio
     // -------------------------
     private fun asignarDescripcionesAudio() {
+        Log.d(TAG, "asignarDescripcionesAudio - Inicio")
+
+        // Spinner “Idioma”: cuando cambie la selección, describirlo
+        binding.spinnerIdioma.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                Log.d(TAG, "Spinner idioma: onNothingSelected")
+            }
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val idioma = parent?.getItemAtPosition(position).toString()
+                Log.d(TAG, "Spinner idioma - onItemSelected: $idioma")
+                speakOut("Idioma seleccionado: $idioma")
+            }
+        }
+
         // Etiqueta “Idioma”
         binding.tvIdiomaLabel.setOnClickListener {
+            Log.d(TAG, "tvIdiomaLabel clickeado")
             speakOut("Selecciona el idioma de la aplicación")
-        }
-        // Spinner “Idioma”
-        binding.spinnerIdioma.setOnTouchListener { _, _ ->
-            speakOut("Lista de idiomas. Desliza y selecciona Español o Inglés")
-            false
         }
 
         // Etiqueta “Intensidad de vibración”
         binding.tvIntensidadLabel.setOnClickListener {
+            Log.d(TAG, "tvIntensidadLabel clickeado")
             speakOut("Elige la intensidad de vibración: suave, media o alta")
         }
-        // RadioButtons intensidad
-        binding.rbSuave.setOnClickListener { speakOut("Vibración suave") }
-        binding.rbMedia.setOnClickListener { speakOut("Vibración media") }
-        binding.rbAlta.setOnClickListener { speakOut("Vibración alta") }
+        binding.rbSuave.setOnClickListener {
+            Log.d(TAG, "rbSuave clickeado")
+            speakOut("Vibración suave")
+        }
+        binding.rbMedia.setOnClickListener {
+            Log.d(TAG, "rbMedia clickeado")
+            speakOut("Vibración media")
+        }
+        binding.rbAlta.setOnClickListener {
+            Log.d(TAG, "rbAlta clickeado")
+            speakOut("Vibración alta")
+        }
 
         // Etiqueta “Tipo de vibración”
         binding.tvTipoLabel.setOnClickListener {
+            Log.d(TAG, "tvTipoLabel clickeado")
             speakOut("Elige el tipo de vibración: continua o intermitente")
         }
-        binding.rbContinua.setOnClickListener { speakOut("Vibración continua") }
-        binding.rbIntermitente.setOnClickListener { speakOut("Vibración intermitente") }
+        binding.rbContinua.setOnClickListener {
+            Log.d(TAG, "rbContinua clickeado")
+            speakOut("Vibración continua")
+        }
+        binding.rbIntermitente.setOnClickListener {
+            Log.d(TAG, "rbIntermitente clickeado")
+            speakOut("Vibración intermitente")
+        }
 
         // Etiqueta “Alto contraste”
         binding.tvContrasteLabel.setOnClickListener {
+            Log.d(TAG, "tvContrasteLabel clickeado")
             speakOut("Activa o desactiva el modo de alto contraste")
-        }
-        binding.switchContraste.setOnClickListener {
-            val estado = if (binding.switchContraste.isChecked) "Activado" else "Desactivado"
-            speakOut("Alto contraste $estado")
         }
 
         // Etiqueta “Velocidad de voz”
         binding.tvVelocidadLabel.setOnClickListener {
+            Log.d(TAG, "tvVelocidadLabel clickeado")
             speakOut("Ajusta la velocidad de la voz: lenta, normal o rápida")
         }
-        binding.rbLenta.setOnClickListener { speakOut("Voz lenta") }
-        binding.rbNormal.setOnClickListener { speakOut("Voz normal") }
-        binding.rbRapida.setOnClickListener { speakOut("Voz rápida") }
-
-        // Botón “Probar vibración”
-        binding.btnTestVibration.setOnClickListener {
-            speakOut("Probando vibración")
+        binding.rbLenta.setOnClickListener {
+            Log.d(TAG, "rbLenta clickeado")
+            tts.setSpeechRate(0.75f)
+            speakOut("Voz lenta")
+        }
+        binding.rbNormal.setOnClickListener {
+            Log.d(TAG, "rbNormal clickeado")
+            tts.setSpeechRate(1.0f)
+            speakOut("Voz normal")
+        }
+        binding.rbRapida.setOnClickListener {
+            Log.d(TAG, "rbRapida clickeado")
+            tts.setSpeechRate(1.25f)
+            speakOut("Voz rápida")
         }
 
         // Etiqueta “Modo oscuro”
         binding.tvThemeLabel.setOnClickListener {
+            Log.d(TAG, "tvThemeLabel clickeado")
             speakOut("Activa o desactiva el modo oscuro")
-        }
-        binding.switchTheme.setOnClickListener {
-            val estado = if (binding.switchTheme.isChecked) "Modo oscuro activado" else "Modo oscuro desactivado"
-            speakOut(estado)
         }
 
         // Botón “Restaurar configuración”
         binding.btnResetDefaults.setOnClickListener {
+            Log.d(TAG, "btnResetDefaults (en asignarDescripcionesAudio) clickeado")
             speakOut("Restaurando valores por defecto")
         }
 
         // Botón “Guardar y volver”
         binding.btnGuardar.setOnClickListener {
+            Log.d(TAG, "btnGuardar (en asignarDescripcionesAudio) clickeado")
             speakOut("Guardando cambios y volviendo")
         }
+
+        Log.d(TAG, "asignarDescripcionesAudio - Fin")
     }
 
     // -------------------------
@@ -310,8 +425,12 @@ class SettingsActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     // -------------------------
     private fun speakOut(texto: String) {
         if (::tts.isInitialized) {
-            tts.setSpeechRate(obtenerTasaHabla())
+            val tasa = obtenerTasaHabla()
+            tts.setSpeechRate(tasa)
+            Log.d(TAG, "speakOut: \"$texto\" con tasa=$tasa")
             tts.speak(texto, TextToSpeech.QUEUE_FLUSH, null, UUID.randomUUID().toString())
+        } else {
+            Log.e(TAG, "speakOut: TTS no inicializado")
         }
     }
 }
