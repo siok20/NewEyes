@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <LinearLayout
+        android:id="@+id/llContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- - TÍTULO PRINCIPAL - -->
+        <TextView
+            android:id="@+id/tvTitulo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Configuración"
+            android:textColor="?attr/colorOnBackground"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp" />
+
+        <!-- - IDIOMA - -->
+        <TextView
+            android:id="@+id/tvIdiomaLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Idioma"
+            android:textColor="?attr/colorOnBackground"
+            android:textSize="16sp" />
+
+        <Spinner
+            android:id="@+id/spinnerIdioma"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/btn_dropdown"
+            android:padding="8dp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- - INTENSIDAD DE VIBRACIÓN - -->
+        <TextView
+            android:id="@+id/tvIntensidadLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Intensidad de vibración"
+            android:textColor="?attr/colorOnBackground"
+            android:textSize="16sp" />
+
+        <RadioGroup
+            android:id="@+id/rgIntensidad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
+
+            <RadioButton
+                android:id="@+id/rbSuave"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Suave"
+                android:textColor="?attr/colorOnBackground"
+                android:buttonTint="#2196F3" />
+
+            <RadioButton
+                android:id="@+id/rbMedia"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Media"
+                android:textColor="?attr/colorOnBackground"
+                android:buttonTint="#2196F3" />
+
+            <RadioButton
+                android:id="@+id/rbAlta"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Alta"
+                android:textColor="?attr/colorOnBackground"
+                android:buttonTint="#2196F3" />
+        </RadioGroup>
+
+        <!-- - TIPO DE VIBRACIÓN - -->
+        <TextView
+            android:id="@+id/tvTipoLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tipos de vibración"
+            android:textColor="?attr/colorOnBackground"
+            android:textSize="16sp" />
+
+        <RadioGroup
+            android:id="@+id/rgTipo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
+
+            <RadioButton
+                android:id="@+id/rbContinua"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Continua"
+                android:textColor="?attr/colorOnBackground"
+                android:buttonTint="#2196F3" />
+
+            <RadioButton
+                android:id="@+id/rbIntermitente"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Intermitente"
+                android:textColor="?attr/colorOnBackground"
+                android:buttonTint="#2196F3" />
+
+            <RadioButton
+                android:id="@+id/rbPulsante"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pulsante"
+                android:textColor="?attr/colorOnBackground"
+                android:buttonTint="#2196F3" />
+
+        </RadioGroup>
+
+
+        <!-- - ALTO CONTRASTE - -->
+        <TextView
+            android:id="@+id/tvContrasteLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Activar alto contraste"
+            android:textColor="?attr/colorOnBackground"
+            android:textSize="16sp" />
+
+        <Switch
+            android:id="@+id/switchContraste"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#777777"
+            android:layout_marginBottom="24dp" />
+
+        <!-- - VELOCIDAD DE VOZ (TTS) - -->
+        <TextView
+            android:id="@+id/tvVelocidadLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Velocidad de voz"
+            android:textColor="?attr/colorOnBackground"
+            android:textSize="16sp" />
+
+        <RadioGroup
+            android:id="@+id/rgVelocidad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
+
+            <RadioButton
+                android:id="@+id/rbLenta"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Lenta"
+                android:textColor="?attr/colorOnBackground"
+                android:buttonTint="#2196F3" />
+
+            <RadioButton
+                android:id="@+id/rbNormal"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Normal"
+                android:textColor="?attr/colorOnBackground"
+                android:buttonTint="#2196F3" />
+
+            <RadioButton
+                android:id="@+id/rbRapida"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Rápida"
+                android:textColor="?attr/colorOnBackground"
+                android:buttonTint="#2196F3" />
+        </RadioGroup>
+
+        <!-- - PROBAR VIBRACIÓN - -->
+        <Button
+            android:id="@+id/btnTestVibration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Probar vibración"
+            android:layout_marginBottom="24dp"
+            android:backgroundTint="#2196F3"
+            android:textColor="?attr/colorOnBackground"
+            android:textStyle="bold" />
+
+        <!-- - MODO OSCURO / CLARO - -->
+        <TextView
+            android:id="@+id/tvThemeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Modo oscuro"
+            android:textColor="?attr/colorOnBackground"
+            android:textSize="16sp" />
+
+        <Switch
+            android:id="@+id/switchTheme"
+            android:layout_width="wrap_content"
+            android:background="#777777"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp" />
+
+        <!-- - RESTAURAR A PREDETERMINADOS - -->
+        <Button
+            android:id="@+id/btnResetDefaults"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Restaurar configuración"
+            android:layout_marginBottom="24dp"
+            android:backgroundTint="#2196F3"
+            android:textColor="?attr/colorOnBackground"
+            android:textStyle="bold" />
+
+        <!-- - GUARDAR Y VOLVER - -->
+        <Button
+            android:id="@+id/btnGuardar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Guardar y volver"
+            android:backgroundTint="#2196F3"
+            android:textColor="?attr/colorOnBackground"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+    </LinearLayout>
+</ScrollView>
