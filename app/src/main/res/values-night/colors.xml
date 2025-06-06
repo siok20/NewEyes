@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colores principales -->
+    <color name="colorPrimary">#60D2C6</color>
+    <color name="colorOnPrimary">#000000</color>
+
+    <color name="colorSecondary">#FBC02D</color>
+    <color name="colorOnSecondary">#000000</color>
+
+    <color name="colorTertiary">#FF8A65</color>
+    <color name="colorOnTertiary">#000000</color>
+
+    <!-- Fondo y superficie -->
+    <color name="colorBackground">#121212</color>
+    <color name="colorOnBackground">#FFFFFF</color>
+
+    <color name="colorSurface">#1E1E1E</color>
+    <color name="colorOnSurface">#FFFFFF</color>
+
+    <!-- Overlay y bordes -->
+    <color name="elevationOverlayColor">#66FFFFFF</color>
+</resources>
