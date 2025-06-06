@@ -16,6 +16,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.neweyes.chat.*
 import com.neweyes.databinding.ActivityChatBinding
+import android.speech.tts.TextToSpeech
+import java.util.Locale
 
 /**
  * Activity que muestra la interfaz de chat en tiempo real.
@@ -25,6 +27,8 @@ class ChatActivity : BaseActivity() {
 
     private lateinit var binding: ActivityChatBinding
     private lateinit var chatAdapter: ChatAdapter
+
+    private lateinit var tts: TextToSpeech
 
     private lateinit var speechRecognizer: SpeechRecognizer
     private val REQUEST_RECORD_AUDIO_PERMISSION = 100
@@ -40,6 +44,13 @@ class ChatActivity : BaseActivity() {
         setupSendMessage()
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+
+        tts = TextToSpeech(this) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                tts.language = Locale("es", "ES") // o Locale.US para inglés
+            }
+        }
+
 
         val listener = object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {
@@ -94,6 +105,15 @@ class ChatActivity : BaseActivity() {
                 "🗣️ Recibir indicaciones por voz que te orientan mientras caminas, para que siempre sepas por dónde ir.\n\n" +
                 "No necesitas ver la pantalla: Neweyes te habla, vibra y te cuida.\n" +
                 "¡Comencemos a explorar el mundo con nuevos ojos! 👁️📲✨")
+
+        tts.speak("¡Bienvenido a Neweyes!\n\n" +
+                "Tu guía inteligente diseñada especialmente para ti.\n" +
+                "Con Neweyes, podrás:\n\n" +
+                "🔧 Configurar patrones de vibración personalizados para que tu celular te comunique lo que ves sin necesidad de mirar.\n" +
+                "📷 Usar la cámara del dispositivo para detectar obstáculos y recibir alertas en tiempo real, ayudándote a navegar de forma segura.\n" +
+                "🗣️ Recibir indicaciones por voz que te orientan mientras caminas, para que siempre sepas por dónde ir.\n\n" +
+                "No necesitas ver la pantalla: Neweyes te habla, vibra y te cuida.\n" +
+                "¡Comencemos a explorar el mundo con nuevos ojos! 👁️📲✨", TextToSpeech.QUEUE_FLUSH, null, null)
     }
 
     private fun checkAudioPermission(): Boolean {
@@ -217,5 +237,8 @@ class ChatActivity : BaseActivity() {
         val incoming = Message(text = content, isUser = false)
         chatAdapter.addMessage(incoming)
         binding.recyclerViewMessages.scrollToPosition(chatAdapter.itemCount - 1)
+
+        // Hablar el mensaje
+        tts.speak(content, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 }
