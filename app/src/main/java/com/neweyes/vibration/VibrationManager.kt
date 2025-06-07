@@ -8,9 +8,6 @@ import android.os.VibratorManager
 
 class VibrationManager(private val context: Context) {
 
-    var vibrationIntensity: VibrationIntensity = VibrationIntensity.MEDIA
-    var vibrationType: VibrationType = VibrationType.CONTINUA
-
     private val vibrator: Vibrator by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val manager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
@@ -21,13 +18,14 @@ class VibrationManager(private val context: Context) {
     }
 
     fun vibrate() {
-        val pattern = getPatternForTypeAndIntensity(vibrationType, vibrationIntensity)
+        val intensity = VibrationIntensity.fromConfig()
+        val type = VibrationType.fromConfig()
+        val pattern = getPatternForTypeAndIntensity(type, intensity)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val effect = VibrationEffect.createWaveform(pattern, -1)
             vibrator.vibrate(effect)
         } else {
-            // Deprecated en API 26+, pero útil para retrocompatibilidad
             @Suppress("DEPRECATION")
             vibrator.vibrate(pattern, -1)
         }
