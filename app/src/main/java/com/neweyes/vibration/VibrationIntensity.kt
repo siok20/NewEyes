@@ -13,6 +13,6 @@ enum class VibrationIntensity {
             }
         }
 
-        fun fromConfig(): VibrationIntensity = fromString(AppConfig.vibrationIntensity)
+        fun fromConfig(): VibrationIntensity = fromString(AppConfig.getVibrationIntensity())
     }
 }

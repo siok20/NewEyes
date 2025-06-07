@@ -222,7 +222,7 @@
             android:layout_height="wrap_content"
             android:text="Restaurar configuración"
             android:layout_marginBottom="24dp"
-            android:backgroundTint="#2196F3"
+            android:backgroundTint="#e53434"
             android:textColor="?attr/colorOnBackground"
             android:textStyle="bold" />
 

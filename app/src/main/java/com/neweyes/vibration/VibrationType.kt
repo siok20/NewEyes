@@ -12,6 +12,6 @@ enum class VibrationType {
                 else           -> CONTINUA // Default
             }
         }
-        fun fromConfig(): VibrationType = fromString(AppConfig.vibrationType)
+        fun fromConfig(): VibrationType = fromString(AppConfig.getVibrationType())
     }
 }

@@ -12,6 +12,6 @@ enum class VoiceSpeed(val rate: Float) {
             else -> NORMAL
         }
 
-        fun fromConfig(): VoiceSpeed = fromString(AppConfig.voiceSpeed)
+        fun fromConfig(): VoiceSpeed = fromString(AppConfig.getVoiceSpeed())
     }
 }
