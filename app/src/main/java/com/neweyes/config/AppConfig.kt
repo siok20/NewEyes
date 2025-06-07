@@ -3,10 +3,10 @@ import android.content.Context
 object AppConfig {
     var isDarkModeEnabled: Boolean = false
     var isContrastModeEnabled: Boolean = false
+    var voiceSpeed: String = "normal" // "lenta", "rápida"
     var defaultLanguage: String = "es" // "en"
     var vibrationIntensity: String = "media" // "suave", "alta"
     var vibrationType: String = "continua" // "intermitente", "pulsante"
-    var voiceSpeed: String = "normal" // "lenta", "rápida"
 
     private const val PREFS_NAME = "AppSettings"
 
