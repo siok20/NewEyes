@@ -2,23 +2,24 @@ package com.neweyes.voice
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
-import java.util.Locale
 
 class TextToSpeechHelper(
     context: Context,
-)  {
-    private var speed: VoiceSpeed = VoiceSpeed.fromString(AppConfig.voiceSpeed)
-    private var language: VoiceLanguage = VoiceLanguage.fromString(AppConfig.defaultLanguage)
+    speed: VoiceSpeed = VoiceSpeed.fromConfig(),
+    language: VoiceLanguage = VoiceLanguage.fromConfig()
+) {
+    private var currentSpeed: VoiceSpeed = speed
+    private var currentLanguage: VoiceLanguage = language
 
     private val tts: TextToSpeech = TextToSpeech(context) {
         if (it == TextToSpeech.SUCCESS) {
-            tts.language = Locale.getDefault()
+            setupTTS()
         }
     }
 
     private fun setupTTS() {
-        tts.language = language.locale
-        tts.setSpeechRate(speed.rate)
+        tts.language = currentLanguage.locale
+        tts.setSpeechRate(currentSpeed.rate)
     }
 
     fun speak(text: String) {
@@ -26,15 +27,14 @@ class TextToSpeechHelper(
     }
 
     fun setSpeed(newSpeed: VoiceSpeed) {
-        speed = newSpeed
-        tts.setSpeechRate(speed.rate)
+        currentSpeed = newSpeed
+        tts.setSpeechRate(currentSpeed.rate)
     }
 
     fun setLanguage(newLanguage: VoiceLanguage) {
-        language = newLanguage
-        tts.language = language.locale
+        currentLanguage = newLanguage
+        tts.language = currentLanguage.locale
     }
-
 
     fun shutdown() {
         tts.shutdown()
