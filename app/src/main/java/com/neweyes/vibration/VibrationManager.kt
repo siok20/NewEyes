@@ -8,6 +8,9 @@ import android.os.VibratorManager
 
 class VibrationManager(private val context: Context) {
 
+    private var intensity = VibrationIntensity.fromConfig()
+    private var type = VibrationType.fromConfig()
+
     private val vibrator: Vibrator by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val manager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
@@ -18,8 +21,6 @@ class VibrationManager(private val context: Context) {
     }
 
     fun vibrate() {
-        val intensity = VibrationIntensity.fromConfig()
-        val type = VibrationType.fromConfig()
         val pattern = getPatternForTypeAndIntensity(type, intensity)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -29,6 +30,14 @@ class VibrationManager(private val context: Context) {
             @Suppress("DEPRECATION")
             vibrator.vibrate(pattern, -1)
         }
+    }
+
+    fun setIntensity(newIntensity: VibrationIntensity) {
+        intensity = newIntensity
+    }
+
+    fun setType(newType: VibrationType) {
+        type = newType
     }
 
     private fun getPatternForTypeAndIntensity(

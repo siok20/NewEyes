@@ -12,6 +12,6 @@ enum class VoiceLanguage(val locale: Locale) {
             "es" -> ES
             else -> ES
         }
-        fun fromConfig(): VoiceLanguage = fromString(AppConfig.defaultLanguage)
+        fun fromConfig(): VoiceLanguage = fromString(AppConfig.getDefaultLanguage())
     }
 }

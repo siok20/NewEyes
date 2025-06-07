@@ -46,7 +46,7 @@ class SpeechRecognizerHelper(
     }
 
     private fun getRecognizerIntent(): Intent {
-        val languageCode = AppConfig.defaultLanguage
+        val languageCode = AppConfig.getDefaultLanguage()
         val locale = when (languageCode.lowercase()) {
             "es" -> Locale("es", "ES")
             "en" -> Locale("en", "US")

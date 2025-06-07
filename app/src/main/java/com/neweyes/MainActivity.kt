@@ -23,6 +23,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        AppConfig.load(this)
+
         // Correctamente vinculamos el botón por ID
         binding.btnVoiceNav.setOnClickListener {
             val intent = Intent(this, VoiceActivity::class.java)
