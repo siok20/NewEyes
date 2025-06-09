@@ -41,6 +41,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".VoiceActivity" />
+        <activity android:name=".ChatActivity" />
         <activity android:name=".SettingsActivity" />
     </application>
 
