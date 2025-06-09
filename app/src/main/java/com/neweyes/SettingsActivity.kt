@@ -11,6 +11,7 @@ import com.neweyes.vibration.VibrationIntensity
 import com.neweyes.vibration.VibrationManager
 import com.neweyes.vibration.VibrationType
 import com.neweyes.voice.TextToSpeechHelper
+import com.neweyes.voice.VoiceLanguage
 import com.neweyes.voice.VoiceSpeed
 
 class SettingsActivity : AppCompatActivity() {
@@ -105,16 +106,26 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        // Idioma Spinner
+
+        // Spinner “Idioma”: cuando cambie la selección, describirlo
         binding.spinnerIdioma.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                Log.d(TAG, "Spinner idioma: onNothingSelected")
+                // TODO: manejar nada seleccionado si es necesario
+            }
             override fun onItemSelected(
                 parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long
             ) {
-                // TODO: manejar selección de idioma
-            }
+                val idioma = parent?.getItemAtPosition(position).toString()
+                Log.d(TAG, "Spinner idioma - onItemSelected: $idioma")
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // TODO: manejar nada seleccionado si es necesario
+                when (idioma.lowercase()) {
+                    "español" -> ttsHelper.setLanguage(VoiceLanguage.ES)
+                    "inglés" -> ttsHelper.setLanguage(VoiceLanguage.EN)
+                    else -> ttsHelper.setLanguage(VoiceLanguage.ES)
+                }
+
+                ttsHelper.speak("Idioma seleccionado: $idioma")
             }
         }
 
@@ -123,14 +134,21 @@ class SettingsActivity : AppCompatActivity() {
             when (checkedId) {
                 binding.rbSuave.id -> {
                     vibrateHelper.setIntensity(VibrationIntensity.SUAVE)
-                }
+                    Log.d(TAG, "rbSuave clickeado")
+                    ttsHelper.speak("Vibración suave")
+                                    }
                 binding.rbMedia.id -> {
                     vibrateHelper.setIntensity(VibrationIntensity.MEDIA)
+                    Log.d(TAG, "rbMedia clickeado")
+                    ttsHelper.speak("Vibración media")
                 }
                 binding.rbAlta.id -> {
                     vibrateHelper.setIntensity(VibrationIntensity.ALTA)
+                    Log.d(TAG, "rbAlta clickeado")
+                    ttsHelper.speak("Vibración alta")
                 }
             }
+            vibrateHelper.vibrate()
         }
 
         // Tipo de vibración RadioGroup
@@ -138,14 +156,21 @@ class SettingsActivity : AppCompatActivity() {
             when (checkedId) {
                 binding.rbContinua.id -> {
                     vibrateHelper.setType(VibrationType.CONTINUA)
+                    Log.d(TAG, "rbContinua clickeado")
+                    ttsHelper.speak("Vibración continua")
                 }
                 binding.rbIntermitente.id -> {
                     vibrateHelper.setType(VibrationType.INTERMITENTE)
+                    Log.d(TAG, "rbIntermitente clickeado")
+                    ttsHelper.speak("Vibración intermitente")
                 }
                 binding.rbPulsante.id -> {
                     vibrateHelper.setType(VibrationType.PULSANTE)
+                    Log.d(TAG, "rbPulsante clickeado")
+                    ttsHelper.speak("Vibración pulsante")
                 }
             }
+            vibrateHelper.vibrate()
         }
 
         // Switch alto contraste
@@ -157,13 +182,19 @@ class SettingsActivity : AppCompatActivity() {
         binding.rgVelocidad.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 binding.rbLenta.id -> {
+                    Log.d(TAG, "rbLenta clickeado")
                     ttsHelper.setSpeed(VoiceSpeed.SLOW)
+                    ttsHelper.speak("Voz lenta")
                 }
                 binding.rbNormal.id -> {
+                    Log.d(TAG, "rbNormal clickeado")
                     ttsHelper.setSpeed(VoiceSpeed.NORMAL)
+                    ttsHelper.speak("Voz normal")
                 }
                 binding.rbRapida.id -> {
+                    Log.d(TAG, "rbRapida clickeado")
                     ttsHelper.setSpeed(VoiceSpeed.FAST)
+                    ttsHelper.speak("Voz rápida")
                 }
             }
         }
@@ -260,23 +291,6 @@ class SettingsActivity : AppCompatActivity() {
     private fun setUpDescriptions() {
         Log.d(TAG, "asignarDescripcionesAudio - Inicio")
 
-        // Spinner “Idioma”: cuando cambie la selección, describirlo
-        binding.spinnerIdioma.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                Log.d(TAG, "Spinner idioma: onNothingSelected")
-            }
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val idioma = parent?.getItemAtPosition(position).toString()
-                Log.d(TAG, "Spinner idioma - onItemSelected: $idioma")
-                ttsHelper.speak("Idioma seleccionado: $idioma")
-            }
-        }
-
         // Etiqueta “Idioma”
         binding.tvIdiomaLabel.setOnClickListener {
             Log.d(TAG, "tvIdiomaLabel clickeado")
@@ -288,31 +302,10 @@ class SettingsActivity : AppCompatActivity() {
             Log.d(TAG, "tvIntensidadLabel clickeado")
             ttsHelper.speak("Elige la intensidad de vibración: suave, media o alta")
         }
-        binding.rbSuave.setOnClickListener {
-            Log.d(TAG, "rbSuave clickeado")
-            ttsHelper.speak("Vibración suave")
-        }
-        binding.rbMedia.setOnClickListener {
-            Log.d(TAG, "rbMedia clickeado")
-            ttsHelper.speak("Vibración media")
-        }
-        binding.rbAlta.setOnClickListener {
-            Log.d(TAG, "rbAlta clickeado")
-            ttsHelper.speak("Vibración alta")
-        }
-
         // Etiqueta “Tipo de vibración”
         binding.tvTipoLabel.setOnClickListener {
             Log.d(TAG, "tvTipoLabel clickeado")
-            ttsHelper.speak("Elige el tipo de vibración: continua o intermitente")
-        }
-        binding.rbContinua.setOnClickListener {
-            Log.d(TAG, "rbContinua clickeado")
-            ttsHelper.speak("Vibración continua")
-        }
-        binding.rbIntermitente.setOnClickListener {
-            Log.d(TAG, "rbIntermitente clickeado")
-            ttsHelper.speak("Vibración intermitente")
+            ttsHelper.speak("Elige el tipo de vibración: continua, intermitente o pulsante")
         }
 
         // Etiqueta “Alto contraste”
@@ -325,21 +318,6 @@ class SettingsActivity : AppCompatActivity() {
         binding.tvVelocidadLabel.setOnClickListener {
             Log.d(TAG, "tvVelocidadLabel clickeado")
             ttsHelper.speak("Ajusta la velocidad de la voz: lenta, normal o rápida")
-        }
-        binding.rbLenta.setOnClickListener {
-            Log.d(TAG, "rbLenta clickeado")
-            ttsHelper.setSpeed(VoiceSpeed.SLOW)
-            ttsHelper.speak("Voz lenta")
-        }
-        binding.rbNormal.setOnClickListener {
-            Log.d(TAG, "rbNormal clickeado")
-            ttsHelper.setSpeed(VoiceSpeed.NORMAL)
-            ttsHelper.speak("Voz normal")
-        }
-        binding.rbRapida.setOnClickListener {
-            Log.d(TAG, "rbRapida clickeado")
-            ttsHelper.setSpeed(VoiceSpeed.FAST)
-            ttsHelper.speak("Voz rápida")
         }
 
         // Etiqueta “Modo oscuro”
