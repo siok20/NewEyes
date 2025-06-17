@@ -1,7 +1,7 @@
 package com.neweyes.data
 
 import com.neweyes.chat.Message
-import com.neweyes.data.model.MessageEntity
+import com.neweyes.data.entity.MessageEntity
 
 fun MessageEntity.toMessage(): Message {
     return Message(text = text, imageUri = imageUri, isUser = isUser)
