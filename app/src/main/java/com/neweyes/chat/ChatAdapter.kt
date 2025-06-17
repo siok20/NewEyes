@@ -84,6 +84,13 @@ class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         notifyDataSetChanged()
     }
 
+    fun setMessages(newMessages: List<Message>) {
+        messages.clear()
+        messages.addAll(newMessages)
+        notifyDataSetChanged()
+    }
+
+
     // ViewHolder para mensajes del usuario
     inner class UserTextMessageViewHolder(
         private val binding: ItemMessageUserBinding

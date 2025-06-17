@@ -4,11 +4,18 @@ import android.content.Context
 import androidx.room.Room
 
 object DatabaseModule {
+    @Volatile
+    private var INSTANCE: AppDatabase? = null
+
     fun provideDatabase(context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "neweyes_db" // Nombre del archivo .db en almacenamiento interno
-        ).build()
+        return INSTANCE ?: synchronized(this) {
+            val instance = Room.databaseBuilder(
+                context.applicationContext,
+                AppDatabase::class.java,
+                "neweyes_db"
+            ).build()
+            INSTANCE = instance
+            instance
+        }
     }
 }
