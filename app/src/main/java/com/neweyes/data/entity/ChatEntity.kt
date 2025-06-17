@@ -1,4 +1,4 @@
-package com.neweyes.data.model
+package com.neweyes.data.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

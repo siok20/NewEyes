@@ -1,7 +1,7 @@
 package com.neweyes.data.dao
 
 import androidx.room.*
-import com.neweyes.data.model.MessageEntity
+import com.neweyes.data.entity.MessageEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

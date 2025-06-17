@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.neweyes.chat.*
 import com.neweyes.databinding.ActivityChatBinding
@@ -43,7 +44,7 @@ class ChatActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inflar layout con ViewBinding
+        // Inflar layout
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -293,7 +294,7 @@ class ChatActivity : AppCompatActivity() {
             R.id.action_history -> {
                 Log.d("ToolbarAction", "Historial seleccionado")
                 Toast.makeText(this, "Historial", Toast.LENGTH_SHORT).show()
-                //showHistoryDialog()
+                binding.drawerLayout.openDrawer(GravityCompat.START)
                 true
             }
             R.id.action_settings -> {

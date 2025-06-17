@@ -2,7 +2,7 @@ package com.neweyes.data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.neweyes.data.model.*
+import com.neweyes.data.entity.*
 import com.neweyes.data.dao.*
 
 @Database(entities = [ChatEntity::class, MessageEntity::class], version = 1)
