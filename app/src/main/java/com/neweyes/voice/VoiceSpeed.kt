@@ -8,7 +8,7 @@ enum class VoiceSpeed(val rate: Float) {
     companion object {
         fun fromString(value: String): VoiceSpeed = when (value.lowercase()) {
             "lenta", "slow" -> SLOW
-            "rapida", "fast" -> FAST
+            "rápida", "fast" -> FAST
             else -> NORMAL
         }
 

@@ -8,8 +8,8 @@ import androidx.lifecycle.MutableLiveData
 class VoiceViewModel(application: Application) : AndroidViewModel(application),
     SpeechRecognizerHelper.Listener {
 
-    private val _voiceText = MutableLiveData<String>()
-    val voiceText: LiveData<String> = _voiceText
+    private val voicePartialText = MutableLiveData<String>()
+    val voiceText: LiveData<String> = voicePartialText
 
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
@@ -26,11 +26,11 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application),
     }
 
     override fun onPartialResult(text: String) {
-        _voiceText.postValue("Escuchando: $text...")
+        voicePartialText.postValue(text)
     }
 
     override fun onFinalResult(text: String) {
-        _voiceText.postValue("Destino: $text")
+        voicePartialText.postValue(text)
     }
 
     override fun onError(errorMsg: String) {
