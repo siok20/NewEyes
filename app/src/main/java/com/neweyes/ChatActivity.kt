@@ -9,6 +9,8 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -47,6 +49,9 @@ class ChatActivity : AppCompatActivity() {
 
         setupRecyclerView()
         setupSendMessage()
+        setSupportActionBar(binding.chatToolbar)
+        supportActionBar?.title = "NewEyes Chat"
+        Log.d("ToolbarAction", "Toolbar asignado: ${supportActionBar != null}")
 
         cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             Log.d("CameraDebug", "TakePicture result: $success")
@@ -131,7 +136,6 @@ class ChatActivity : AppCompatActivity() {
                 cameraLauncher.launch(it)
             }
         }
-
 
         receiveMessageFromOther("¡Bienvenido a Neweyes!\n\n" +
                 "Tu guía inteligente diseñada especialmente para ti.\n" +
@@ -269,6 +273,43 @@ class ChatActivity : AppCompatActivity() {
             ".jpg",
             storageDir
         )
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.chat_toolbar_menu, menu)
+        Log.d("ToolbarAction", "Menú inflado con ${menu?.size()} items")
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        Log.d("ToolbarAction", "Item seleccionado: ${item.itemId}")
+        return when (item.itemId) {
+            R.id.action_new_chat -> {
+                Log.d("ToolbarAction", "Nuevo chat seleccionado")
+                Toast.makeText(this, "Nuevo chat", Toast.LENGTH_SHORT).show()
+                chatAdapter.clearMessages()
+                true
+            }
+            R.id.action_history -> {
+                Log.d("ToolbarAction", "Historial seleccionado")
+                Toast.makeText(this, "Historial", Toast.LENGTH_SHORT).show()
+                //showHistoryDialog()
+                true
+            }
+            R.id.action_settings -> {
+                Log.d("ToolbarAction", "Ajustes seleccionados")
+                Toast.makeText(this, "Ajustes", Toast.LENGTH_SHORT).show()
+                //openSettingsScreen()
+                true
+            }
+            R.id.action_exit -> {
+                Log.d("ToolbarAction", "Salir seleccionado")
+                Toast.makeText(this, "Saliendo...", Toast.LENGTH_SHORT).show()
+                finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
 }

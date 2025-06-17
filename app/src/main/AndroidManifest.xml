@@ -27,6 +27,7 @@
         android:theme="@style/Theme.NewEyes"
         tools:targetApi="31">
 
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAz6AoSkQDG3hhBE2yv0a7_1Fz2Zj-Gpgo" />
