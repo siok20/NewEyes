@@ -300,6 +300,8 @@ class ChatActivity : AppCompatActivity() {
                 Log.d("ToolbarAction", "Ajustes seleccionados")
                 Toast.makeText(this, "Ajustes", Toast.LENGTH_SHORT).show()
                 //openSettingsScreen()
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
                 true
             }
             R.id.action_exit -> {
