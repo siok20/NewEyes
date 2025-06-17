@@ -1,16 +1,18 @@
 package com.neweyes.chat.history
 
 import com.neweyes.data.dao.ChatDao
+import com.neweyes.data.dao.MessageDao
 import com.neweyes.data.entity.ChatEntity
+import com.neweyes.data.entity.MessageEntity
 import kotlinx.coroutines.flow.Flow
 
 class ChatRepository(
-    private val chatHistoryDao: ChatDao
+    private val chatDao: ChatDao,
+    private val messageDao: MessageDao
 ) {
-    suspend fun insertChat(title: String): Long {
-        val entity = ChatEntity(title = title, createdAt = System.currentTimeMillis())
-        return chatHistoryDao.insert(entity)
-    }
+    suspend fun insertChat(chat: ChatEntity): Long = chatDao.insert(chat)
+    fun getAllChats(): Flow<List<ChatEntity>> = chatDao.getAllChats()
 
-    fun getAllChats(): Flow<List<ChatEntity>> = chatHistoryDao.getAllChats()
+    suspend fun insertMessage(message: MessageEntity) = messageDao.insert(message)
+    fun getMessagesForChat(chatId: Long) = messageDao.getMessagesForChat(chatId)
 }
