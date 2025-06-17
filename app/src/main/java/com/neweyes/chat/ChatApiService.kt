@@ -9,7 +9,7 @@ interface GroqApi {
 
     @Headers(
         "Content-Type: application/json",
-        "Authorization: Bearer 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"
+        "Authorization: Bearer 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"
     )
     @POST("openai/v1/chat/completions")
     fun getChatCompletion(@Body request: ChatRequest): Call<ChatResponse>

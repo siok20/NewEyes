@@ -2,7 +2,7 @@
 <resources>
     <dimen name="padding_bubble">12dp</dimen>
     <dimen name="margin_bubble">8dp</dimen>
-    <dimen name="radius_bubble">12dp</dimen>
+    <dimen name="radius_bubble">16dp</dimen>
     <dimen name="text_size_message">16sp</dimen>
     <dimen name="input_height">48dp</dimen>
     <dimen name="input_margin">8dp</dimen>

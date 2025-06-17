@@ -1,7 +1,9 @@
+// ChatActivity.kt
 package com.neweyes
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
@@ -9,12 +11,16 @@ import android.speech.SpeechRecognizer
 import android.util.Log
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.neweyes.chat.*
 import com.neweyes.databinding.ActivityChatBinding
+import java.io.File
 
 /**
  * Activity que muestra la interfaz de chat en tiempo real.
@@ -28,6 +34,10 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var speechRecognizer: SpeechRecognizer
     private val REQUEST_RECORD_AUDIO_PERMISSION = 100
 
+    private lateinit var cameraLauncher: ActivityResultLauncher<Uri>
+    private var photoUri: Uri? = null
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -37,6 +47,27 @@ class ChatActivity : AppCompatActivity() {
 
         setupRecyclerView()
         setupSendMessage()
+
+        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            Log.d("CameraDebug", "TakePicture result: $success")
+            Log.d("CameraDebug", "photoUri: $photoUri")
+
+            try {
+                if (success && photoUri != null) {
+                    Log.d("CameraDebug", "Uri válido, agregando mensaje")
+                    val imageMessage = Message(imageUri = photoUri.toString(), isUser = true)
+                    chatAdapter.addMessage(imageMessage)
+                    binding.recyclerViewMessages.scrollToPosition(chatAdapter.itemCount - 1)
+                } else {
+                    Log.w("CameraDebug", "No se capturó la imagen o Uri nulo")
+                    Toast.makeText(this, "No se capturó la imagen", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e("CameraDebug", "Error al procesar la imagen", e)
+                Toast.makeText(this, "Error procesando la imagen", Toast.LENGTH_SHORT).show()
+            }
+        }
+
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
 
@@ -84,6 +115,23 @@ class ChatActivity : AppCompatActivity() {
                 requestAudioPermission()
             }
         }
+
+        binding.buttonCamera.setOnClickListener {
+            val imageFile = createImageFile()
+            val uri = try {
+                FileProvider.getUriForFile(this, "${packageName}.provider", imageFile)
+            } catch (e: Exception) {
+                Log.e("ChatActivity", "Error al obtener Uri: ${e.message}")
+                Toast.makeText(this, "Error al preparar la cámara", Toast.LENGTH_SHORT).show()
+                null
+            }
+
+            uri?.let {
+                photoUri = it
+                cameraLauncher.launch(it)
+            }
+        }
+
 
         receiveMessageFromOther("¡Bienvenido a Neweyes!\n\n" +
                 "Tu guía inteligente diseñada especialmente para ti.\n" +
@@ -194,7 +242,6 @@ class ChatActivity : AppCompatActivity() {
                         receiveMessageFromOther(chatResponse?.choices?.get(0)?.message?.content.toString())
                     } else {
                         Log.d("GROQ","Error en la respuesta: ${response.errorBody()?.string()}")
-                        receiveMessageFromOther("Problemas de conexión")
                     }
                 }
 
@@ -202,15 +249,11 @@ class ChatActivity : AppCompatActivity() {
                     Log.d("GROQ","Fallo en la llamada: ${t.message}")
                 }
             })
-
-
-            // 4. (Opcional) Aquí podrías invocar tu función para enviar el mensaje a la API / WebSocket.
-            // sendToServer(texto)
         }
     }
 
     /**
-     * Método de ejemplo para recibir un mensaje "de otro".
+     * Métod de ejemplo para recibir un mensaje "de otro".
      * Úsalo cuando llegue la respuesta de tu API/WebSocket y quieras mostrarla.
      */
     fun receiveMessageFromOther(content: String) {
@@ -218,4 +261,14 @@ class ChatActivity : AppCompatActivity() {
         chatAdapter.addMessage(incoming)
         binding.recyclerViewMessages.scrollToPosition(chatAdapter.itemCount - 1)
     }
+
+    private fun createImageFile(): File {
+        val storageDir = cacheDir
+        return File.createTempFile(
+            "IMG_${System.currentTimeMillis()}",
+            ".jpg",
+            storageDir
+        )
+    }
+
 }

@@ -34,6 +34,7 @@ class SettingsActivity : AppCompatActivity() {
         setupUI()
         setupListeners()
         setUpDescriptions()
+        Log.d(TAG, "LOAD: \n$AppConfig")
     }
 
     private fun setupUI() {
@@ -90,7 +91,7 @@ class SettingsActivity : AppCompatActivity() {
         Log.d(TAG, "Velocidad TTS guardada: $velocidadGuardada")
         when (velocidadGuardada) {
             "lenta"  -> binding.rgVelocidad.check(binding.rbLenta.id)
-            "rapida" -> binding.rgVelocidad.check(binding.rbRapida.id)
+            "rápida" -> binding.rgVelocidad.check(binding.rbRapida.id)
             else     -> binding.rgVelocidad.check(binding.rbNormal.id)
         }
 
