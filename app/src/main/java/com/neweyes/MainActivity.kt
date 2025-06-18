@@ -6,27 +6,14 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.neweyes.databinding.ActivityMainBinding
 
-class MainActivity : BaseActivity() {
+class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (PreferenceManager.isHighContrast(this)) {
-            setTheme(R.style.AppTheme_HighContrast)
-        } else {
-            setTheme(R.style.AppTheme)
-        }
-
-        val darkMode = PreferenceManager.isDarkMode(this)
-        AppCompatDelegate.setDefaultNightMode(
-            if (darkMode) AppCompatDelegate.MODE_NIGHT_YES
-            else AppCompatDelegate.MODE_NIGHT_NO
-        )
-
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         //setContentView(R.layout.activity_main)
@@ -48,11 +35,7 @@ class MainActivity : BaseActivity() {
         }
 
 
-        binding.btnSettings.setOnClickListener {
-            //val intent = Intent(this, FlowActivity::class.java)
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
-        }
+
 
         binding.btnChatNav.setOnClickListener {
             Log.d("ChatTest", "Botón presionado")
