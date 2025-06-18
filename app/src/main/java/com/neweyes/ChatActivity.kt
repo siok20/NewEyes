@@ -32,6 +32,7 @@ import com.neweyes.data.DatabaseModule
 import com.neweyes.data.entity.ChatEntity
 import com.neweyes.data.entity.MessageEntity
 import com.neweyes.databinding.ActivityChatBinding
+import com.neweyes.voice.TextToSpeechHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
@@ -63,8 +64,10 @@ class ChatActivity : AppCompatActivity() {
         ))
     }
     private var currentChatId: Long = -1L
+    private var messageJob: Job? = null
 
     private lateinit var speechRecognizer: SpeechRecognizer
+    private lateinit var ttsHelper : TextToSpeechHelper
 
     private val REQUEST_RECORD_AUDIO_PERMISSION = 100
     private val CAMERA_PERMISSION_REQUEST_CODE = 1003
@@ -100,6 +103,8 @@ class ChatActivity : AppCompatActivity() {
                 .setNegativeButton("Cancelar", null)
                 .show()
         })
+
+        ttsHelper = TextToSpeechHelper(this)
 
         binding.recyclerViewChatHistory.layoutManager = LinearLayoutManager(this)
         binding.recyclerViewChatHistory.adapter = chatHistoryAdapter
@@ -282,8 +287,8 @@ class ChatActivity : AppCompatActivity() {
     private fun sendMessage() {
         val texto = binding.editTextMessage.text.toString().trim()
         if (texto.isNotEmpty()) {
-            Log.d(TAG, "sendMessage: enviando mensaje -> $texto")
-
+            Log.d(TAG, "sendMessage: enviando mensaje -> $texto en el chat $currentChatId")
+            say(texto)
             val newMessage = Message(text = texto, isUser = true)
             chatAdapter.addMessage(newMessage)
 
@@ -309,20 +314,30 @@ class ChatActivity : AppCompatActivity() {
             groqApi.getChatCompletion(request).enqueue(object : Callback<ChatResponse> {
 
                 override fun onResponse(call: Call<ChatResponse>, response: Response<ChatResponse>) {
-                    Log.d(TAG, "Respuesta recibida de Groq")
-                    if (response.isSuccessful) {
-                        val chatResponse = response.body()
-                        val respuesta = chatResponse?.choices?.get(0)?.message?.content.toString()
-                        Log.d(TAG, "Respuesta del modelo: $respuesta")
-                        receiveMessageFromOther(respuesta)
-                    } else {
-                        Log.e(TAG, "Error en la respuesta: ${response.errorBody()?.string()}")
+                    try {
+                        Log.d(TAG, "Respuesta recibida de Groq")
+                        if (response.isSuccessful) {
+                            val chatResponse = response.body()
+                            val respuesta = chatResponse?.choices?.get(0)?.message?.content.toString()
+                            Log.d(TAG, "Respuesta del modelo: $respuesta")
+                            receiveMessageFromOther(respuesta)
+                        } else {
+                            val errorMsg = response.errorBody()?.string()
+                            Log.e(TAG, "Error en la respuesta: $errorMsg")
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Excepción en onResponse: ${e.message}", e)
                     }
                 }
 
                 override fun onFailure(call: Call<ChatResponse>, t: Throwable) {
-                    Log.e(TAG, "Fallo en la llamada a Groq: ${t.message}")
+                    try {
+                        Log.e(TAG, "Fallo en la llamada a Groq: ${t.message}", t)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Excepción en onFailure: ${e.message}", e)
+                    }
                 }
+
             })
         } else {
             Log.d(TAG, "sendMessage: mensaje vacío, no se envía")
@@ -333,6 +348,8 @@ class ChatActivity : AppCompatActivity() {
         Log.d(TAG, "receiveMessageFromOther: mensaje recibido -> $content")
         val incoming = Message(text = content, isUser = false)
         chatAdapter.addMessage(incoming)
+
+        say(content)
 
         val messageEntity = MessageEntity(
             chatId = currentChatId,
@@ -396,7 +413,10 @@ class ChatActivity : AppCompatActivity() {
 
     private fun loadChatById(chatId: Long) {
         Log.d(TAG, "loadChatById: cargando chat con ID $chatId")
-        lifecycleScope.launch {
+
+        messageJob?.cancel()
+
+        messageJob = lifecycleScope.launch {
             DatabaseModule.provideDatabase(this@ChatActivity)
                 .messageDao()
                 .getMessagesForChat(chatId)
@@ -412,6 +432,7 @@ class ChatActivity : AppCompatActivity() {
                             )
                         )
                     }
+                    binding.recyclerViewMessages.scrollToPosition(chatAdapter.itemCount - 1)
                 }
         }
     }
@@ -434,5 +455,15 @@ class ChatActivity : AppCompatActivity() {
         val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
         return format.format(Date(timestamp))
     }
+
+    private fun say(message: String){
+        ttsHelper.speak(text = message)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        messageJob?.cancel()
+    }
+
 
 }
