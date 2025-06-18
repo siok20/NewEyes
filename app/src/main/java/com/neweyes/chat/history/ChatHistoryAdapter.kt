@@ -6,7 +6,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.neweyes.databinding.ItemChatHistoryBinding
 
 class ChatHistoryAdapter(
-    private val onChatClick: (Long) -> Unit
+    private val onChatClick: (Long) -> Unit,
+    private val onChatLongClick: ((Long) -> Unit)? = null
 ) : RecyclerView.Adapter<ChatHistoryAdapter.ChatViewHolder>() {
 
     private val items = mutableListOf<Chat>()
@@ -23,6 +24,10 @@ class ChatHistoryAdapter(
             binding.chatTitle.text = summary.title
             binding.chatTimestamp.text = android.text.format.DateFormat.format("dd/MM/yyyy HH:mm", summary.timestamp)
             binding.root.setOnClickListener { onChatClick(summary.id) }
+            binding.root.setOnLongClickListener {
+                onChatLongClick?.invoke(summary.id)
+                true
+            }
         }
     }
 

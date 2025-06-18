@@ -14,4 +14,7 @@ interface ChatDao {
 
     @Delete
     suspend fun delete(chat: ChatEntity)
+
+    @Query("DELETE FROM chats WHERE id = :chatId")
+    suspend fun deleteChatById(chatId: Long)
 }

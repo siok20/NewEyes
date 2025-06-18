@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -49,6 +50,8 @@ import java.util.Locale
  */
 class ChatActivity : AppCompatActivity() {
 
+    private val TAG = "TestChatActivity"
+
     private lateinit var binding: ActivityChatBinding
     private lateinit var chatAdapter: ChatAdapter
 
@@ -60,19 +63,19 @@ class ChatActivity : AppCompatActivity() {
         ))
     }
     private var currentChatId: Long = -1L
-    private var currentChatJob: Job? = null
 
     private lateinit var speechRecognizer: SpeechRecognizer
+
     private val REQUEST_RECORD_AUDIO_PERMISSION = 100
+    private val CAMERA_PERMISSION_REQUEST_CODE = 1003
 
     private lateinit var cameraLauncher: ActivityResultLauncher<Uri>
     private var photoUri: Uri? = null
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate: ChatActivity iniciada")
 
-        // Inflar layout
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -80,32 +83,49 @@ class ChatActivity : AppCompatActivity() {
         setupSendMessage()
         setSupportActionBar(binding.chatToolbar)
         supportActionBar?.title = "NewEyes Chat"
-        Log.d("ToolbarAction", "Toolbar asignado: ${supportActionBar != null}")
+        Log.d(TAG, "Toolbar asignado: ${supportActionBar != null}")
 
-        chatHistoryAdapter = ChatHistoryAdapter { chatId ->
-            // Cargar el chat seleccionado
+        chatHistoryAdapter = ChatHistoryAdapter ({ chatId ->
+            Log.d(TAG, "Chat seleccionado: $chatId")
             loadChatById(chatId)
             binding.drawerLayout.closeDrawers()
-        }
+        }, onChatLongClick = { chatIdToDelete ->
+            Log.d(TAG, "Chat long click: eliminar $chatIdToDelete")
+            AlertDialog.Builder(this)
+                .setTitle("Eliminar chat")
+                .setMessage("¿Estás seguro de que quieres eliminar este chat?")
+                .setPositiveButton("Eliminar") { _, _ ->
+                    chatHistoryViewModel.deleteChat(chatIdToDelete)
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
+        })
 
         binding.recyclerViewChatHistory.layoutManager = LinearLayoutManager(this)
         binding.recyclerViewChatHistory.adapter = chatHistoryAdapter
 
-        // Observar lista de chats
         lifecycleScope.launchWhenStarted {
             chatHistoryViewModel.chatSummaries.collect { summaries ->
                 chatHistoryAdapter.submitList(summaries)
             }
         }
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.CAMERA),
+                CAMERA_PERMISSION_REQUEST_CODE
+            )
+        }
 
         cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-            Log.d("CameraDebug", "TakePicture result: $success")
-            Log.d("CameraDebug", "photoUri: $photoUri")
+            Log.d(TAG, "TakePicture result: $success")
+            Log.d(TAG, "photoUri: $photoUri")
 
             try {
                 if (success && photoUri != null) {
-                    Log.d("CameraDebug", "Uri válido, agregando mensaje")
+                    Log.d(TAG, "Uri válido, agregando mensaje")
                     val imageMessage = Message(imageUri = photoUri.toString(), isUser = true)
                     chatAdapter.addMessage(imageMessage)
 
@@ -117,24 +137,23 @@ class ChatActivity : AppCompatActivity() {
                         isUser = true
                     )
                     chatHistoryViewModel.saveMessage(messageEntity)
-
                     binding.recyclerViewMessages.scrollToPosition(chatAdapter.itemCount - 1)
                 } else {
-                    Log.w("CameraDebug", "No se capturó la imagen o Uri nulo")
+                    Log.w(TAG, "No se capturó la imagen o Uri nulo")
                     Toast.makeText(this, "No se capturó la imagen", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Log.e("CameraDebug", "Error al procesar la imagen", e)
+                Log.e(TAG, "Error al procesar la imagen", e)
                 Toast.makeText(this, "Error procesando la imagen", Toast.LENGTH_SHORT).show()
             }
         }
-
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
 
         val listener = object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {
                 Toast.makeText(this@ChatActivity, "Habla ahora...", Toast.LENGTH_SHORT).show()
+                Log.d(TAG, "Reconocimiento iniciado")
             }
 
             override fun onBeginningOfSpeech() {}
@@ -143,14 +162,15 @@ class ChatActivity : AppCompatActivity() {
             override fun onEndOfSpeech() {}
 
             override fun onError(error: Int) {
+                Log.e(TAG, "Error en reconocimiento: $error")
                 Toast.makeText(this@ChatActivity, "Error en reconocimiento: $error", Toast.LENGTH_SHORT).show()
             }
 
             override fun onResults(results: Bundle?) {
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 matches?.firstOrNull()?.let { textoReconocido ->
+                    Log.d(TAG, "Texto reconocido: $textoReconocido")
                     binding.editTextMessage.setText(textoReconocido)
-                    // Envía el mensaje automáticamente cuando termine de reconocer
                     sendMessage()
                 }
             }
@@ -158,7 +178,7 @@ class ChatActivity : AppCompatActivity() {
             override fun onPartialResults(partialResults: Bundle?) {
                 val partial = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 partial?.firstOrNull()?.let {
-                    // Mostrar texto en vivo mientras hablas
+                    Log.d(TAG, "Texto parcial: $it")
                     binding.editTextMessage.setText(it)
                     binding.editTextMessage.setSelection(it.length)
                 }
@@ -178,38 +198,32 @@ class ChatActivity : AppCompatActivity() {
         }
 
         binding.buttonCamera.setOnClickListener {
+            Log.d(TAG, "Botón cámara presionado")
             val imageFile = createImageFile()
             val uri = try {
                 FileProvider.getUriForFile(this, "${packageName}.provider", imageFile)
             } catch (e: Exception) {
-                Log.e("ChatActivity", "Error al obtener Uri: ${e.message}")
+                Log.e(TAG, "Error al obtener Uri: ${e.message}")
                 Toast.makeText(this, "Error al preparar la cámara", Toast.LENGTH_SHORT).show()
                 null
             }
-
             uri?.let {
                 photoUri = it
                 cameraLauncher.launch(it)
             }
         }
 
-        /*receiveMessageFromOther("¡Bienvenido a Neweyes!\n\n" +
-                "Tu guía inteligente diseñada especialmente para ti.\n" +
-                "Con Neweyes, podrás:\n\n" +
-                "🔧 Configurar patrones de vibración personalizados para que tu celular te comunique lo que ves sin necesidad de mirar.\n" +
-                "📷 Usar la cámara del dispositivo para detectar obstáculos y recibir alertas en tiempo real, ayudándote a navegar de forma segura.\n" +
-                "🗣️ Recibir indicaciones por voz que te orientan mientras caminas, para que siempre sepas por dónde ir.\n\n" +
-                "No necesitas ver la pantalla: Neweyes te habla, vibra y te cuida.\n" +
-                "¡Comencemos a explorar el mundo con nuevos ojos! 👁️📲✨")
-         */
         startNewChat()
     }
 
     private fun checkAudioPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        val granted = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        Log.d(TAG, "checkAudioPermission: $granted")
+        return granted
     }
 
     private fun requestAudioPermission() {
+        Log.d(TAG, "requestAudioPermission: solicitando permiso de audio")
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
     }
 
@@ -217,50 +231,46 @@ class ChatActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
             if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                Log.d(TAG, "Permiso de audio concedido")
                 startListening()
             } else {
+                Log.d(TAG, "Permiso de audio denegado")
                 Toast.makeText(this, "Permiso de micrófono necesario", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-
     private fun startListening() {
+        Log.d(TAG, "startListening: iniciando reconocimiento de voz")
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "es-ES")  // Cambia por el idioma que quieras
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "es-ES")
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
         }
         speechRecognizer.startListening(intent)
     }
 
-
-    /**
-     * Inicializa el RecyclerView y le asigna el adapter.
-     */
     private fun setupRecyclerView() {
+        Log.d(TAG, "setupRecyclerView: inicializando RecyclerView")
         chatAdapter = ChatAdapter()
         binding.recyclerViewMessages.apply {
             layoutManager = LinearLayoutManager(this@ChatActivity).apply {
-                // Mostrar los mensajes desde el final cuando se agregue uno nuevo
                 stackFromEnd = true
             }
             adapter = chatAdapter
         }
     }
 
-    /**
-     * Configura el envío de mensajes: tanto al pulsar el botón como al pulsar "Enter" en el teclado.
-     */
     private fun setupSendMessage() {
-        // Al pulsar el botón de envío
+        Log.d(TAG, "setupSendMessage: configurando botón de envío y enter del teclado")
         binding.buttonSend.setOnClickListener {
+            Log.d(TAG, "Botón de enviar presionado")
             sendMessage()
         }
 
-        // Si el usuario presiona "Enter" (actionSend) en el teclado virtual
         binding.editTextMessage.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEND) {
+                Log.d(TAG, "IME_ACTION_SEND detectado")
                 sendMessage()
                 true
             } else {
@@ -269,14 +279,11 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Toma el texto del EditText, lo añade al chat como mensaje de usuario y limpia el campo.
-     * (Aquí únicamente agrega a la lista; la lógica de API para enviar queda para más adelante).
-     */
     private fun sendMessage() {
         val texto = binding.editTextMessage.text.toString().trim()
         if (texto.isNotEmpty()) {
-            // 1. Agregar el mensaje del usuario
+            Log.d(TAG, "sendMessage: enviando mensaje -> $texto")
+
             val newMessage = Message(text = texto, isUser = true)
             chatAdapter.addMessage(newMessage)
 
@@ -289,10 +296,7 @@ class ChatActivity : AppCompatActivity() {
             )
             chatHistoryViewModel.saveMessage(messageEntity)
 
-            // 2. Limpiar el campo de texto
             binding.editTextMessage.text?.clear()
-
-            // 3. Hacer scroll al último mensaje
             binding.recyclerViewMessages.scrollToPosition(chatAdapter.itemCount - 1)
 
             val request = ChatRequest(
@@ -300,34 +304,33 @@ class ChatActivity : AppCompatActivity() {
                 messages = listOf(ChatMessage(role = "user", content = texto))
             )
 
-            Log.d("GROQ", "Empieza")
+            Log.d(TAG, "Enviando solicitud a Groq")
 
             groqApi.getChatCompletion(request).enqueue(object : Callback<ChatResponse> {
 
                 override fun onResponse(call: Call<ChatResponse>, response: Response<ChatResponse>) {
-                    Log.d("GROQ", "Recibe")
+                    Log.d(TAG, "Respuesta recibida de Groq")
                     if (response.isSuccessful) {
                         val chatResponse = response.body()
-                        // Aquí accedes a la respuesta: chatResponse?.choices?.get(0)?.message?.content
-                        Log.d("GROQ","Respuesta: ${chatResponse?.choices?.get(0)?.message?.content}")
-                        receiveMessageFromOther(chatResponse?.choices?.get(0)?.message?.content.toString())
+                        val respuesta = chatResponse?.choices?.get(0)?.message?.content.toString()
+                        Log.d(TAG, "Respuesta del modelo: $respuesta")
+                        receiveMessageFromOther(respuesta)
                     } else {
-                        Log.d("GROQ","Error en la respuesta: ${response.errorBody()?.string()}")
+                        Log.e(TAG, "Error en la respuesta: ${response.errorBody()?.string()}")
                     }
                 }
 
                 override fun onFailure(call: Call<ChatResponse>, t: Throwable) {
-                    Log.d("GROQ","Fallo en la llamada: ${t.message}")
+                    Log.e(TAG, "Fallo en la llamada a Groq: ${t.message}")
                 }
             })
+        } else {
+            Log.d(TAG, "sendMessage: mensaje vacío, no se envía")
         }
     }
 
-    /**
-     * Métod de ejemplo para recibir un mensaje "de otro".
-     * Úsalo cuando llegue la respuesta de tu API/WebSocket y quieras mostrarla.
-     */
     fun receiveMessageFromOther(content: String) {
+        Log.d(TAG, "receiveMessageFromOther: mensaje recibido -> $content")
         val incoming = Message(text = content, isUser = false)
         chatAdapter.addMessage(incoming)
 
@@ -344,44 +347,45 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun createImageFile(): File {
-        val storageDir = cacheDir
-        return File.createTempFile(
+        val file = File.createTempFile(
             "IMG_${System.currentTimeMillis()}",
             ".jpg",
-            storageDir
+            cacheDir
         )
+        Log.d(TAG, "createImageFile: archivo creado -> ${file.absolutePath}")
+        return file
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.chat_toolbar_menu, menu)
-        Log.d("ToolbarAction", "Menú inflado con ${menu?.size()} items")
+        Log.d(TAG, "onCreateOptionsMenu: menú inflado con ${menu?.size()} items")
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        Log.d("ToolbarAction", "Item seleccionado: ${item.itemId}")
+        Log.d(TAG, "onOptionsItemSelected: item -> ${item.itemId}")
         return when (item.itemId) {
             R.id.action_new_chat -> {
-                Log.d("ToolbarAction", "Nuevo chat seleccionado")
+                Log.d(TAG, "Opción: nuevo chat")
                 Toast.makeText(this, "Nuevo chat", Toast.LENGTH_SHORT).show()
                 startNewChat()
                 true
             }
             R.id.action_history -> {
-                Log.d("ToolbarAction", "Historial seleccionado")
+                Log.d(TAG, "Opción: historial")
                 Toast.makeText(this, "Historial", Toast.LENGTH_SHORT).show()
                 binding.drawerLayout.openDrawer(GravityCompat.START)
                 true
             }
             R.id.action_settings -> {
-                Log.d("ToolbarAction", "Ajustes seleccionados")
+                Log.d(TAG, "Opción: ajustes")
                 Toast.makeText(this, "Ajustes", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)
                 true
             }
             R.id.action_exit -> {
-                Log.d("ToolbarAction", "Salir seleccionado")
+                Log.d(TAG, "Opción: salir")
                 Toast.makeText(this, "Saliendo...", Toast.LENGTH_SHORT).show()
                 finish()
                 true
@@ -391,11 +395,13 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun loadChatById(chatId: Long) {
+        Log.d(TAG, "loadChatById: cargando chat con ID $chatId")
         lifecycleScope.launch {
             DatabaseModule.provideDatabase(this@ChatActivity)
                 .messageDao()
                 .getMessagesForChat(chatId)
                 .collect { messages ->
+                    Log.d(TAG, "Mensajes cargados: ${messages.size}")
                     chatAdapter.clearMessages()
                     messages.forEach { entity ->
                         chatAdapter.addMessage(
@@ -411,6 +417,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun startNewChat() {
+        Log.d(TAG, "startNewChat: creando nuevo chat")
         lifecycleScope.launch {
             val timestamp = System.currentTimeMillis()
             val newChat = ChatEntity(title = "Chat del ${getFormattedDate(timestamp)}", createdAt = timestamp)
@@ -418,7 +425,7 @@ class ChatActivity : AppCompatActivity() {
             currentChatId = newChatId
             loadChatById(newChatId)
             receiveMessageFromOther("¡Nuevo chat creado!\nPuedes empezar a hablar ahora.")
-            Log.d("Mensaje enviado", "mensaje")
+            Log.d(TAG, "Nuevo chat creado con ID $newChatId")
             binding.drawerLayout.closeDrawer(GravityCompat.START)
         }
     }
@@ -427,4 +434,5 @@ class ChatActivity : AppCompatActivity() {
         val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
         return format.format(Date(timestamp))
     }
+
 }
