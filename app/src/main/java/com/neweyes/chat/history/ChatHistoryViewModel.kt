@@ -35,4 +35,11 @@ class ChatHistoryViewModel(private val repository: ChatRepository) : ViewModel()
         return repository.getMessagesForChat(chatId)
     }
 
+    fun deleteChat(chatId: Long) {
+        viewModelScope.launch {
+            repository.deleteChatAndMessages(chatId)
+        }
+    }
+
+
 }

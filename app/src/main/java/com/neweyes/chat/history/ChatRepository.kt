@@ -15,4 +15,10 @@ class ChatRepository(
 
     suspend fun insertMessage(message: MessageEntity) = messageDao.insert(message)
     fun getMessagesForChat(chatId: Long) = messageDao.getMessagesForChat(chatId)
+
+    suspend fun deleteChatAndMessages(chatId: Long) {
+        messageDao.deleteMessagesForChat(chatId)
+        chatDao.deleteChatById(chatId)
+    }
+
 }
