@@ -23,7 +23,7 @@ import java.util.Locale
  * Activity que muestra la interfaz de chat en tiempo real.
  * Utiliza ViewBinding para inflar views y manejar el RecyclerView.
  */
-class ChatActivity : BaseActivity() {
+class ChatActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChatBinding
     private lateinit var chatAdapter: ChatAdapter

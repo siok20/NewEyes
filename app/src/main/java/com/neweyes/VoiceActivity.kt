@@ -24,7 +24,7 @@ import com.neweyes.camera.CameraViewModel
 import com.neweyes.databinding.ActivityVoiceBinding
 import com.neweyes.voice.VoiceViewModel
 
-class VoiceActivity : BaseActivity(), OnMapReadyCallback {
+class VoiceActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1001
@@ -39,18 +39,6 @@ class VoiceActivity : BaseActivity(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (PreferenceManager.isHighContrast(this)) {
-            setTheme(R.style.AppTheme_HighContrast)
-        } else {
-            setTheme(R.style.AppTheme)
-        }
-
-        val darkMode = PreferenceManager.isDarkMode(this)
-        AppCompatDelegate.setDefaultNightMode(
-            if (darkMode) AppCompatDelegate.MODE_NIGHT_YES
-            else AppCompatDelegate.MODE_NIGHT_NO
-        )
-
         super.onCreate(savedInstanceState)
         binding = ActivityVoiceBinding.inflate(layoutInflater)
         setContentView(binding.root)
