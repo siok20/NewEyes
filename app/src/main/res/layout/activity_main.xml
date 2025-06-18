@@ -4,7 +4,6 @@
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
     tools:context=".MainActivity">
 
     <!-- Título "New Eyes" -->
@@ -14,7 +13,7 @@
         android:layout_height="wrap_content"
         android:text="@string/new_title"
         android:textSize="48sp"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/colorOnBackground"
         android:textStyle="bold"
         android:typeface="serif"
         android:layout_centerHorizontal="true"
@@ -26,7 +25,7 @@
         android:layout_height="wrap_content"
         android:text="@string/eyes"
         android:textSize="48sp"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/colorOnBackground"
         android:textStyle="bold"
         android:typeface="serif"
         android:layout_below="@id/titleNew"
@@ -44,6 +43,19 @@
         android:layout_centerHorizontal="true"
         android:typeface="serif"
         android:layout_below="@id/titleEyes"
+        android:layout_marginTop="80dp"
+        android:padding="16dp" />
+    <Button
+        android:id="@+id/btnChatNav"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="Entrar al chat"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        android:backgroundTint="#60D2C6"
+        android:layout_centerHorizontal="true"
+        android:typeface="serif"
+        android:layout_below="@id/btnVoiceNav"
         android:layout_marginTop="80dp"
         android:padding="16dp" />
 

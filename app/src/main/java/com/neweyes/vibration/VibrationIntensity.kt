@@ -1,7 +1,18 @@
 package com.neweyes.vibration
 
-enum class VibrationIntensity(val amplitude: Int, val durationMs: Long) {
-    SUAVE(50, 150),
-    MEDIA(150, 300),
-    ALTA(255, 500)
+enum class VibrationIntensity {
+    SUAVE, MEDIA, ALTA;
+
+    companion object {
+        fun fromString(value: String): VibrationIntensity {
+            return when (value.lowercase()) {
+                "suave" -> SUAVE
+                "media" -> MEDIA
+                "alta"  -> ALTA
+                else    -> MEDIA // Default
+            }
+        }
+
+        fun fromConfig(): VibrationIntensity = fromString(AppConfig.getVibrationIntensity())
+    }
 }
