@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Colores principales -->
+    <color name="colorPrimary">#60D2C6</color>
+    <color name="colorOnPrimary">#000000</color>
+
+    <color name="colorSecondary">#F9A825</color>
+    <color name="colorOnSecondary">#000000</color>
+
+    <color name="colorTertiary">#FF6F61</color>
+    <color name="colorOnTertiary">#FFFFFF</color>
+
+    <!-- Fondo y superficie -->
+    <color name="colorBackground">#FFFFFF</color>
+    <color name="colorOnBackground">#000000</color>
+
+    <color name="colorSurface">#F5F5F5</color>
+    <color name="colorOnSurface">#000000</color>
+
+    <!-- Overlay y bordes -->
+    <color name="elevationOverlayColor">#33000000</color>
+
+    <!-- Colors for chat -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="chat_background">#F5F5F5</color>

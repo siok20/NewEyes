@@ -18,12 +18,6 @@ class SpeechRecognizerHelper(
         fun onError(errorMsg: String)
     }
 
-    private val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-        putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-        putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-    }
-
     private var speechRecognizer: SpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
 
     init {
@@ -51,8 +45,24 @@ class SpeechRecognizerHelper(
         })
     }
 
+    private fun getRecognizerIntent(): Intent {
+        val languageCode = AppConfig.getDefaultLanguage()
+        val locale = when (languageCode.lowercase()) {
+            "es" -> Locale("es", "ES")
+            "en" -> Locale("en", "US")
+            "fr" -> Locale("fr", "FR")
+            else -> Locale.getDefault() // Fallback
+        }
+
+        return Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale)
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+        }
+    }
+
     fun startListening() {
-        speechRecognizer.startListening(recognizerIntent)
+        speechRecognizer.startListening(getRecognizerIntent())
     }
 
     fun stopListening() {

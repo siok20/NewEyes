@@ -3,7 +3,7 @@
     android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000">
+    >
 
     <LinearLayout
         android:id="@+id/llContainer"
@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Configuración"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnBackground"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_gravity="center_horizontal"
@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Idioma"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnBackground"
             android:textSize="16sp" />
 
         <Spinner
@@ -47,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Intensidad de vibración"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnBackground"
             android:textSize="16sp" />
 
         <RadioGroup
@@ -63,7 +63,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Suave"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnBackground"
                 android:buttonTint="#2196F3" />
 
             <RadioButton
@@ -72,7 +72,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Media"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnBackground"
                 android:buttonTint="#2196F3" />
 
             <RadioButton
@@ -81,7 +81,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Alta"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnBackground"
                 android:buttonTint="#2196F3" />
         </RadioGroup>
 
@@ -91,7 +91,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tipos de vibración"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnBackground"
             android:textSize="16sp" />
 
         <RadioGroup
@@ -106,7 +106,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Continua"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnBackground"
                 android:buttonTint="#2196F3" />
 
             <RadioButton
@@ -114,7 +114,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Intermitente"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnBackground"
                 android:buttonTint="#2196F3" />
 
             <RadioButton
@@ -122,7 +122,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Pulsante"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnBackground"
                 android:buttonTint="#2196F3" />
 
         </RadioGroup>
@@ -134,7 +134,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Activar alto contraste"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnBackground"
             android:textSize="16sp" />
 
         <Switch
@@ -150,7 +150,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Velocidad de voz"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnBackground"
             android:textSize="16sp" />
 
         <RadioGroup
@@ -166,7 +166,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Lenta"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnBackground"
                 android:buttonTint="#2196F3" />
 
             <RadioButton
@@ -175,7 +175,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Normal"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnBackground"
                 android:buttonTint="#2196F3" />
 
             <RadioButton
@@ -184,7 +184,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Rápida"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnBackground"
                 android:buttonTint="#2196F3" />
         </RadioGroup>
 
@@ -196,7 +196,7 @@
             android:text="Probar vibración"
             android:layout_marginBottom="24dp"
             android:backgroundTint="#2196F3"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnBackground"
             android:textStyle="bold" />
 
         <!-- - MODO OSCURO / CLARO - -->
@@ -205,7 +205,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Modo oscuro"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnBackground"
             android:textSize="16sp" />
 
         <Switch
@@ -222,8 +222,8 @@
             android:layout_height="wrap_content"
             android:text="Restaurar configuración"
             android:layout_marginBottom="24dp"
-            android:backgroundTint="#FFFFFF"
-            android:textColor="#000000"
+            android:backgroundTint="#e53434"
+            android:textColor="?attr/colorOnBackground"
             android:textStyle="bold" />
 
         <!-- - GUARDAR Y VOLVER - -->
@@ -232,8 +232,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Guardar y volver"
-            android:backgroundTint="#FFFFFF"
-            android:textColor="#000000"
+            android:backgroundTint="#2196F3"
+            android:textColor="?attr/colorOnBackground"
             android:textStyle="bold"
             android:layout_marginBottom="16dp" />
 
