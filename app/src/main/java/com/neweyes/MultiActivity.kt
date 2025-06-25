@@ -78,7 +78,7 @@ class MultiActivity : AppCompatActivity() {
                 runOnUiThread {
                     // Aquí actualizas tu chat
                     if (user != userName){
-                        receiveMessageFromOther(message.toString())
+                        receiveMessageFromOther(message.toString(), user)
                     }
                     Log.d("SocketIO", "Mensaje de $user: $message")
                 }
@@ -131,10 +131,15 @@ class MultiActivity : AppCompatActivity() {
 
                     binding.recyclerViewMessages.scrollToPosition(chatAdapter.itemCount - 1)
 
-                    say("Imagen subida correctamente")
-                    haveImage = true
-                    binding.buttonCamera.isEnabled = false
-                    receiveMessageFromOther("Ahora descríbeme que quieres que haga com la imagen")
+                    val user = userName
+
+                    val data = JSONObject().apply {
+                        put("user", user)
+                        put("message", photoUri.toString())
+                        put("room", numberRoom)
+                    }
+                    mSocket.emit("send_message", data)
+
                 } else {
                     Log.w(TAG, "No se capturó la imagen o Uri nulo")
                     Toast.makeText(this, "No se capturó la imagen", Toast.LENGTH_SHORT).show()
@@ -301,9 +306,9 @@ class MultiActivity : AppCompatActivity() {
     }
 
 
-    fun receiveMessageFromOther(content: String) {
+    fun receiveMessageFromOther(content: String, userName: String) {
         Log.d(TAG, "receiveMessageFromOther: mensaje recibido -> $content")
-        val incoming = Message(text = content, isUser = false)
+        val incoming = Message(text = content, isUser = false, userName = userName)
         chatAdapter.addMessage(incoming)
 
         say(content)
