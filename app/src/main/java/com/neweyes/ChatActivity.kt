@@ -513,6 +513,4 @@ class ChatActivity : AppCompatActivity() {
         super.onDestroy()
         messageJob?.cancel()
     }
-
-
 }

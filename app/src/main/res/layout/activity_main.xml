@@ -45,6 +45,8 @@
         android:layout_below="@id/titleEyes"
         android:layout_marginTop="80dp"
         android:padding="16dp" />
+
+    <!-- Botón "Entrar al chat" -->
     <Button
         android:id="@+id/btnChatNav"
         android:layout_width="250dp"
@@ -58,6 +60,22 @@
         android:layout_below="@id/btnVoiceNav"
         android:layout_marginTop="80dp"
         android:padding="16dp" />
+
+    <!-- Botón "Chat con otra persona" -->
+    <Button
+        android:id="@+id/btnChatPerson"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="Chat con otra persona"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        android:backgroundTint="#60D2C6"
+        android:layout_centerHorizontal="true"
+        android:typeface="serif"
+        android:layout_below="@id/btnChatNav"
+        android:layout_marginTop="80dp"
+        android:padding="16dp" />
+
 
     <!-- Icono de engranaje (usando emoji como recurso temporal) -->
     <ImageButton
