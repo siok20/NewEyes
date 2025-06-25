@@ -30,21 +30,28 @@
     <!-- Overlay y bordes -->
     <color name="elevationOverlayColor">#66FFFFFF</color>
 
-    <color name="hc_daynight_colorPrimary">#000000</color>
-    <color name="hc_daynight_colorOnPrimary">#FFFFFF</color>
+    <!-- Color primario (acentos oscuros con texto claro) -->
+    <color name="hc_daynight_colorPrimary">#00BCD4</color> <!-- cian brillante -->
+    <color name="hc_daynight_colorOnPrimary">#000000</color>
 
-    <color name="hc_daynight_colorSecondary">#1B5E20</color>
-    <color name="hc_daynight_colorOnSecondary">#FFFFFF</color>
+    <!-- Secundario (verde brillante) -->
+    <color name="hc_daynight_colorSecondary">#76FF03</color>
+    <color name="hc_daynight_colorOnSecondary">#000000</color>
 
-    <color name="hc_daynight_colorTertiary">#0D47A1</color>
-    <color name="hc_daynight_colorOnTertiary">#FFFFFF</color>
+    <!-- Terciario (amarillo fuerte o naranja) -->
+    <color name="hc_daynight_colorTertiary">#FFEB3B</color>
+    <color name="hc_daynight_colorOnTertiary">#000000</color>
 
-    <color name="hc_daynight_colorBackground">#FFFFFF</color>
-    <color name="hc_daynight_colorOnBackground">#000000</color>
+    <!-- Fondo -->
+    <color name="hc_daynight_colorBackground">#121212</color> <!-- gris casi negro -->
+    <color name="hc_daynight_colorOnBackground">#FFFFFF</color>
 
-    <color name="hc_daynight_colorSurface">#FFFFFF</color>
-    <color name="hc_daynight_colorOnSurface">#000000</color>
+    <!-- Superficie (tarjetas, botones, etc.) -->
+    <color name="hc_daynight_colorSurface">#1E1E1E</color>
+    <color name="hc_daynight_colorOnSurface">#FFFFFF</color>
 
-    <color name="hc_daynight_elevationOverlayColor">#888888</color>
+    <!-- Elevación -->
+    <color name="hc_daynight_elevationOverlayColor">#33FFFFFF</color> <!-- sutil, no gris -->
+
 
 </resources>
