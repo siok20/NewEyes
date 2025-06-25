@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
+    id("com.google.gms.google-services")
 }
 
 // Variables de signing que vienen de gradle.properties
@@ -80,4 +81,6 @@ dependencies {
     implementation("androidx.room:room-runtime:2.7.1")
     kapt("androidx.room:room-compiler:2.7.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.1")
+
+    implementation("io.socket:socket.io-client:2.1.0")
 }

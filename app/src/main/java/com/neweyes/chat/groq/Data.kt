@@ -1,4 +1,4 @@
-package com.neweyes.chat
+package com.neweyes.chat.groq
 
 data class ChatMessage(
     val role: String,
