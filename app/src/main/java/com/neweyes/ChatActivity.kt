@@ -26,17 +26,24 @@ import androidx.core.view.GravityCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.neweyes.chat.*
+import com.neweyes.chat.gemini.ImageChatResponse
+import com.neweyes.chat.gemini.geminiApi
+import com.neweyes.chat.groq.ChatMessage
+import com.neweyes.chat.groq.ChatRequest
+import com.neweyes.chat.groq.ChatResponse
+import com.neweyes.chat.groq.groqApi
 import com.neweyes.chat.history.*
-import com.neweyes.data.AppDatabase
 import com.neweyes.data.DatabaseModule
 import com.neweyes.data.entity.ChatEntity
 import com.neweyes.data.entity.MessageEntity
 import com.neweyes.databinding.ActivityChatBinding
 import com.neweyes.voice.TextToSpeechHelper
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.forEach
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -45,10 +52,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-/**
- * Activity que muestra la interfaz de chat en tiempo real.
- * Utiliza ViewBinding para inflar views y manejar el RecyclerView.
- */
 class ChatActivity : AppCompatActivity() {
 
     private val TAG = "TestChatActivity"
@@ -74,6 +77,9 @@ class ChatActivity : AppCompatActivity() {
 
     private lateinit var cameraLauncher: ActivityResultLauncher<Uri>
     private var photoUri: Uri? = null
+
+    private var currentImageFile: File? = null
+    private var haveImage: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -143,6 +149,11 @@ class ChatActivity : AppCompatActivity() {
                     )
                     chatHistoryViewModel.saveMessage(messageEntity)
                     binding.recyclerViewMessages.scrollToPosition(chatAdapter.itemCount - 1)
+
+                    say("Imagen subida correctamente")
+                    haveImage = true
+                    binding.buttonCamera.isEnabled = false
+                    receiveMessageFromOther("Ahora descríbeme que quieres que haga com la imagen")
                 } else {
                     Log.w(TAG, "No se capturó la imagen o Uri nulo")
                     Toast.makeText(this, "No se capturó la imagen", Toast.LENGTH_SHORT).show()
@@ -205,6 +216,7 @@ class ChatActivity : AppCompatActivity() {
         binding.buttonCamera.setOnClickListener {
             Log.d(TAG, "Botón cámara presionado")
             val imageFile = createImageFile()
+            currentImageFile = imageFile
             val uri = try {
                 FileProvider.getUriForFile(this, "${packageName}.provider", imageFile)
             } catch (e: Exception) {
@@ -310,39 +322,76 @@ class ChatActivity : AppCompatActivity() {
             )
 
             Log.d(TAG, "Enviando solicitud a Groq")
+            Log.d(TAG, "${haveImage} and ${currentImageFile}")
+            if (haveImage && currentImageFile!=null){
+                Log.d(TAG, "Proceso por gemini")
+                subirImagen(currentImageFile!!, texto)
+                binding.buttonCamera.isEnabled = true
+            }
+            else if (!haveImage) {
+                Log.d(TAG, "Proceso por groq")
+                groqApi.getChatCompletion(request).enqueue(object : Callback<ChatResponse> {
 
-            groqApi.getChatCompletion(request).enqueue(object : Callback<ChatResponse> {
-
-                override fun onResponse(call: Call<ChatResponse>, response: Response<ChatResponse>) {
-                    try {
-                        Log.d(TAG, "Respuesta recibida de Groq")
-                        if (response.isSuccessful) {
-                            val chatResponse = response.body()
-                            val respuesta = chatResponse?.choices?.get(0)?.message?.content.toString()
-                            Log.d(TAG, "Respuesta del modelo: $respuesta")
-                            receiveMessageFromOther(respuesta)
-                        } else {
-                            val errorMsg = response.errorBody()?.string()
-                            Log.e(TAG, "Error en la respuesta: $errorMsg")
+                    override fun onResponse(
+                        call: Call<ChatResponse>,
+                        response: Response<ChatResponse>
+                    ) {
+                        try {
+                            Log.d(TAG, "Respuesta recibida de Groq")
+                            if (response.isSuccessful) {
+                                val chatResponse = response.body()
+                                val respuesta =
+                                    chatResponse?.choices?.get(0)?.message?.content.toString()
+                                Log.d(TAG, "Respuesta del modelo: $respuesta")
+                                receiveMessageFromOther(respuesta)
+                            } else {
+                                val errorMsg = response.errorBody()?.string()
+                                Log.e(TAG, "Error en la respuesta: $errorMsg")
+                            }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Excepción en onResponse: ${e.message}", e)
                         }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Excepción en onResponse: ${e.message}", e)
                     }
-                }
 
-                override fun onFailure(call: Call<ChatResponse>, t: Throwable) {
-                    try {
-                        Log.e(TAG, "Fallo en la llamada a Groq: ${t.message}", t)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Excepción en onFailure: ${e.message}", e)
+                    override fun onFailure(call: Call<ChatResponse>, t: Throwable) {
+                        try {
+                            Log.e(TAG, "Fallo en la llamada a Groq: ${t.message}", t)
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Excepción en onFailure: ${e.message}", e)
+                        }
                     }
-                }
 
-            })
+                })
+            }
         } else {
             Log.d(TAG, "sendMessage: mensaje vacío, no se envía")
         }
     }
+    private fun subirImagen(imageFile: File, prompt: String) {
+        val requestFile = RequestBody.create("image/jpeg".toMediaTypeOrNull(), imageFile)
+        val body = MultipartBody.Part.createFormData("file", imageFile.name, requestFile)
+
+        val promptRequest = RequestBody.create("text/plain".toMediaTypeOrNull(), prompt)
+
+        geminiApi.sendImageAndPrompt(body, promptRequest).enqueue(object : Callback<ImageChatResponse> {
+            override fun onResponse(call: Call<ImageChatResponse>, response: Response<ImageChatResponse>) {
+                if (response.isSuccessful) {
+                    val result = response.body()
+
+                    Log.d(TAG, "✅ Resultado: ${result?.response}")
+                    receiveMessageFromOther(result?.response.toString())
+                    Toast.makeText(this@ChatActivity, result?.response, Toast.LENGTH_LONG).show()
+                } else {
+                    Log.e(TAG, "❌ Error en la respuesta: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ImageChatResponse>, t: Throwable) {
+                Log.e(TAG, "❌ Error en la solicitud: ${t.message}")
+            }
+        })
+    }
+
 
     fun receiveMessageFromOther(content: String) {
         Log.d(TAG, "receiveMessageFromOther: mensaje recibido -> $content")

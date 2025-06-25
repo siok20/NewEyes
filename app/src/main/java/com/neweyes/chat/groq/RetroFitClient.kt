@@ -1,4 +1,4 @@
-package com.neweyes.chat
+package com.neweyes.chat.groq
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
