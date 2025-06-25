@@ -16,21 +16,18 @@
         android:textStyle="bold"
         android:textSize="12sp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        />
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Burbuja de mensaje (debajo del nombre, también alineada a la izquierda) -->
-    <TextView
-        android:id="@+id/text_message_other"
-        style="@style/ChatMessageText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <!-- Imagen del mensaje (alineada a la izquierda, debajo del nombre) -->
+    <ImageView
+        android:id="@+id/imageMessageOther"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
         android:background="@drawable/bg_bubble_other"
-        android:padding="@dimen/padding_bubble"
-        android:text="Hola, ¿cómo estás?"
+        android:contentDescription="Imagen del mensaje"
         app:layout_constraintTop_toBottomOf="@id/text_username"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
-
+        app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
