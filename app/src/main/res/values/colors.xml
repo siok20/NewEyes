@@ -30,4 +30,17 @@
     <color name="text_other">#000000</color>
     <color name="input_background">#FFFFFF</color>
     <color name="divider">#E0E0E0</color>
+
+    <color name="hc_daynight_colorPrimary">#000000</color>
+    <color name="hc_daynight_colorOnPrimary">#FFFFFF</color>
+    <color name="hc_daynight_colorSecondary">#1B5E20</color>
+    <color name="hc_daynight_colorOnSecondary">#FFFFFF</color>
+    <color name="hc_daynight_colorTertiary">#0D47A1</color>
+    <color name="hc_daynight_colorOnTertiary">#FFFFFF</color>
+    <color name="hc_daynight_colorBackground">#FFFFFF</color>
+    <color name="hc_daynight_colorOnBackground">#000000</color>
+    <color name="hc_daynight_colorSurface">#FFFFFF</color>
+    <color name="hc_daynight_colorOnSurface">#000000</color>
+    <color name="hc_daynight_elevationOverlayColor">#888888</color>
+
 </resources>

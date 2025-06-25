@@ -1,4 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Tema base -->
     <style name="Base.Theme.NewEyes" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
@@ -19,4 +20,26 @@
     </style>
 
     <style name="Theme.NewEyes" parent="Base.Theme.NewEyes" />
+
+    <!-- Tema de alto contraste -->
+    <style name="Base.Theme.NewEyes.HighContrastDayNight" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/hc_daynight_colorPrimary</item>
+        <item name="colorOnPrimary">@color/hc_daynight_colorOnPrimary</item>
+
+        <item name="colorSecondary">@color/hc_daynight_colorSecondary</item>
+        <item name="colorOnSecondary">@color/hc_daynight_colorOnSecondary</item>
+
+        <item name="colorTertiary">@color/hc_daynight_colorTertiary</item>
+        <item name="colorOnTertiary">@color/hc_daynight_colorOnTertiary</item>
+
+        <item name="android:windowBackground">@color/hc_daynight_colorBackground</item>
+        <item name="colorOnBackground">@color/hc_daynight_colorOnBackground</item>
+
+        <item name="colorSurface">@color/hc_daynight_colorSurface</item>
+        <item name="colorOnSurface">@color/hc_daynight_colorOnSurface</item>
+
+        <item name="elevationOverlayColor">@color/hc_daynight_elevationOverlayColor</item>
+    </style>
+
+    <style name="Theme.NewEyes.HighContrastDayNight" parent="Base.Theme.NewEyes.HighContrastDayNight" />
 </resources>
