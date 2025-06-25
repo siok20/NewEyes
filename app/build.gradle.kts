@@ -83,4 +83,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.1")
 
     implementation("io.socket:socket.io-client:2.1.0")
+
+    // Firebase platform
+    implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
+    // Firebase Realtime Database
+    implementation("com.google.firebase:firebase-database-ktx")
+    implementation("com.google.firebase:firebase-analytics")
 }

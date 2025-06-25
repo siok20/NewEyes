@@ -2,11 +2,16 @@ package com.neweyes
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
+import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.viewModels
+import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -19,8 +24,16 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.neweyes.camera.CameraViewModel
+import com.neweyes.camera.Posiciones
 import com.neweyes.databinding.ActivityCameraBinding
+import com.neweyes.voice.TextToSpeechHelper
 import com.neweyes.voice.VoiceViewModel
 
 class CameraActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -37,10 +50,21 @@ class CameraActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var map: GoogleMap
 
+    private lateinit var ttsHelper: TextToSpeechHelper
+
+    private lateinit var database: DatabaseReference
+    private val firebaseLocations = mutableListOf<Posiciones>()
+    private lateinit var locationsAdapter: ArrayAdapter<String>
+
+    private val localPointsLocations = mutableListOf<Posiciones>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCameraBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        ttsHelper = TextToSpeechHelper(this)
+        database = FirebaseDatabase.getInstance().reference.child("points")
+        locationsAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf<String>())
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -67,16 +91,11 @@ class CameraActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 3) Botón micrófono: verifica permiso de audio
         binding.btnMic.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-                == PackageManager.PERMISSION_GRANTED
-            ) {
-                voiceViewModel.startListening()
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.RECORD_AUDIO),
-                    RECORD_AUDIO_PERMISSION_REQUEST_CODE
-                )
+            Toast.makeText(this, "Toca en el mapa para seleccionar una ubicación y añadirla.", Toast.LENGTH_LONG).show()
+            map.setOnMapClickListener { latLng ->
+                // Cuando el usuario toca el mapa, le pedimos un nombre para la ubicación
+                showAddLocationDialog(latLng)
+                map.setOnMapClickListener(null) // Remover el listener después de seleccionar una ubicación
             }
         }
 
@@ -92,11 +111,145 @@ class CameraActivity : AppCompatActivity(), OnMapReadyCallback {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        loadInitialData()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         checkLocationPermissionAndEnable()
+    }
+    private fun loadInitialData() {
+
+        // Parte 1: Cargar datos en la lista local para comenzar.
+        // Estos datos se usarán si Firebase aún no ha cargado.
+        // Iniciar la lectura de ubicaciones desde Firebase
+        readLocationsFromFirebase()
+    }
+    private fun showAddLocationDialog(latLng: LatLng) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Añadir Nueva Ubicación")
+
+        val input = EditText(this)
+        input.hint = "Descripción rápida del evento"
+        ttsHelper.speak("Descripción rápida del evento")
+        builder.setView(input)
+
+        builder.setPositiveButton("Guardar") { dialog, _ ->
+            val locationName = input.text.toString().trim()
+            if (locationName.isNotEmpty()) {
+                val newLocation = Posiciones(
+                    latitude = latLng.latitude,
+                    longitude = latLng.longitude,
+                    description = locationName,
+                    status = true
+                )
+                writeNewLocationToFirebase(newLocation)
+            } else {
+                Toast.makeText(this, "El nombre de la ubicación no puede estar vacío.", Toast.LENGTH_SHORT).show()
+            }
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("Cancelar") { dialog, _ ->
+            dialog.cancel()
+        }
+        builder.show()
+    }
+
+    // Función para escribir una nueva ubicación en Firebase
+    private fun writeNewLocationToFirebase(posicion: Posiciones) {
+        val newLocationRef = database.push() // Genera una nueva clave única para la ubicación
+        newLocationRef.setValue(posicion)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Ubicación '${posicion.description}' añadida a Firebase.", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error al añadir ubicación: ${e.message}", Toast.LENGTH_LONG).show()
+                Log.e("Firebase", "Error al escribir en Firebase: ${e.message}")
+            }
+    }
+
+    // Función para leer ubicaciones desde Firebase
+    private fun readLocationsFromFirebase() {
+        database.addValueEventListener(object : ValueEventListener {
+            @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+            override fun onDataChange(snapshot: DataSnapshot) {
+                firebaseLocations.clear() // Limpiar la lista existente
+                locationsAdapter.clear() // Limpiar el adaptador del ListView
+
+                for (childSnapshot in snapshot.children) {
+                    val pos = childSnapshot.getValue(Posiciones::class.java)
+                    pos?.let {
+                        firebaseLocations.add(it)
+                        locationsAdapter.add(it.description) // Añadir la dirección al adaptador del ListView
+                    }
+                }
+                locationsAdapter.notifyDataSetChanged() // Notificar al adaptador que los datos han cambiado
+                createMarkers() // Volver a dibujar los marcadores con los datos actualizados de Firebase
+                // Este bloque es un fallback, si Firebase está vacío, usa la lista local.
+                // Se ejecuta después de intentar leer de Firebase.
+                if (firebaseLocations.isEmpty() ) {
+                    fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                        if (location != null) {
+                            val latLng = LatLng(location.latitude, location.longitude)
+                            val cameraPosition = CameraPosition.Builder()
+                                .target(latLng)
+                                .zoom(17f)
+                                .build()
+                            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+                        }
+                    }
+                }
+            }
+
+            @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Firebase", "Error al leer de Firebase: ${error.message}")
+                Toast.makeText(this@CameraActivity, "Error al cargar ubicaciones de Firebase.", Toast.LENGTH_SHORT).show()
+                // En caso de error o sin datos en Firebase, usa la lista local como fallback para la Parte 1
+                if (firebaseLocations.isEmpty() && localPointsLocations.isNotEmpty()) {
+                    firebaseLocations.addAll(localPointsLocations)
+                    localPointsLocations.forEach { locationsAdapter.add(it.description) }
+                    locationsAdapter.notifyDataSetChanged()
+                    createMarkers()
+                }
+            }
+        })
+    }
+
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    private fun createMarkers() {
+        // Limpiar marcadores existentes para evitar duplicados al actualizar
+        map.clear()
+
+        // Añadir marcador para "Yo"
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                val latLng = LatLng(location.latitude, location.longitude)
+                val cameraPosition = CameraPosition.Builder()
+                    .target(latLng)
+                    .zoom(17f)
+                    .build()
+                map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+            }
+        }
+
+        // Añadir marcadores para las ubicaciones de Estudiante (usará la lista de Firebase)
+        val markers = firebaseLocations.forEach { pos ->
+            map.addMarker(MarkerOptions().position(pos.posicion).title(pos.description))
+        }
+
+        map.setOnMarkerClickListener { marker ->
+            // Aquí decides qué hacer cuando hagan clic en un marcador
+            val title = marker.title
+            val position = marker.position
+            // Por ejemplo, mostrar un Toast
+            ttsHelper.speak(title.toString())
+            Toast.makeText(this, "Marcador clickeado: $title en $position", Toast.LENGTH_SHORT).show()
+
+            true
+        }
+
     }
 
     private fun checkLocationPermissionAndEnable() {
