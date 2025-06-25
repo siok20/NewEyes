@@ -3,6 +3,8 @@ package com.neweyes
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.speech.RecognitionListener
@@ -25,7 +27,18 @@ import kotlinx.coroutines.Job
 import java.io.File
 import io.socket.client.IO
 import io.socket.client.Socket
+import io.socket.engineio.parser.Base64
+import okhttp3.Call
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import org.json.JSONObject
+import java.io.FileOutputStream
+import java.io.IOException
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class MultiActivity : AppCompatActivity() {
 
@@ -42,12 +55,6 @@ class MultiActivity : AppCompatActivity() {
     private val REQUEST_RECORD_AUDIO_PERMISSION = 100
     private val CAMERA_PERMISSION_REQUEST_CODE = 1003
 
-    private lateinit var cameraLauncher: ActivityResultLauncher<Uri>
-    private var photoUri: Uri? = null
-
-    private var currentImageFile: File? = null
-    private var haveImage: Boolean = false
-
     private lateinit var mSocket: Socket
     private var numberRoom: Int = 0
     private var userName: String = ""
@@ -59,7 +66,10 @@ class MultiActivity : AppCompatActivity() {
         try {
             // Cambia esta IP y Puerto al de tu servidor
             Log.d(TAG, "Inicio conexion socket")
-            mSocket = IO.socket("https://siok-support-groq-neweyes.hf.space")
+            val opts = IO.Options()
+            opts.path = "/socket.io"  // <- Esto es CLAVE
+
+            mSocket = IO.socket("https://siok-support-groq-neweyes.hf.space", opts)
             mSocket.connect()
             Log.d(TAG, "conectó socket")
 
@@ -83,6 +93,7 @@ class MultiActivity : AppCompatActivity() {
                     Log.d("SocketIO", "Mensaje de $user: $message")
                 }
             }
+
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -117,37 +128,6 @@ class MultiActivity : AppCompatActivity() {
                 arrayOf(Manifest.permission.CAMERA),
                 CAMERA_PERMISSION_REQUEST_CODE
             )
-        }
-
-        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-            Log.d(TAG, "TakePicture result: $success")
-            Log.d(TAG, "photoUri: $photoUri")
-
-            try {
-                if (success && photoUri != null) {
-                    Log.d(TAG, "Uri válido, agregando mensaje")
-                    val imageMessage = Message(imageUri = photoUri.toString(), isUser = true)
-                    chatAdapter.addMessage(imageMessage)
-
-                    binding.recyclerViewMessages.scrollToPosition(chatAdapter.itemCount - 1)
-
-                    val user = userName
-
-                    val data = JSONObject().apply {
-                        put("user", user)
-                        put("message", photoUri.toString())
-                        put("room", numberRoom)
-                    }
-                    mSocket.emit("send_message", data)
-
-                } else {
-                    Log.w(TAG, "No se capturó la imagen o Uri nulo")
-                    Toast.makeText(this, "No se capturó la imagen", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error al procesar la imagen", e)
-                Toast.makeText(this, "Error procesando la imagen", Toast.LENGTH_SHORT).show()
-            }
         }
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
@@ -196,23 +176,6 @@ class MultiActivity : AppCompatActivity() {
                 startListening()
             } else {
                 requestAudioPermission()
-            }
-        }
-
-        binding.buttonCamera.setOnClickListener {
-            Log.d(TAG, "Botón cámara presionado")
-            val imageFile = createImageFile()
-            currentImageFile = imageFile
-            val uri = try {
-                FileProvider.getUriForFile(this, "${packageName}.provider", imageFile)
-            } catch (e: Exception) {
-                Log.e(TAG, "Error al obtener Uri: ${e.message}")
-                Toast.makeText(this, "Error al preparar la cámara", Toast.LENGTH_SHORT).show()
-                null
-            }
-            uri?.let {
-                photoUri = it
-                cameraLauncher.launch(it)
             }
         }
     }
@@ -314,16 +277,6 @@ class MultiActivity : AppCompatActivity() {
         say(content)
 
         binding.recyclerViewMessages.scrollToPosition(chatAdapter.itemCount - 1)
-    }
-
-    private fun createImageFile(): File {
-        val file = File.createTempFile(
-            "IMG_${System.currentTimeMillis()}",
-            ".jpg",
-            cacheDir
-        )
-        Log.d(TAG, "createImageFile: archivo creado -> ${file.absolutePath}")
-        return file
     }
 
     private fun say(message: String){

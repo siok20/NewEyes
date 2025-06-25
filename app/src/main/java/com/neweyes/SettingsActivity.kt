@@ -1,5 +1,6 @@
 package com.neweyes
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -21,6 +22,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
     private var TAG = "SettingsActivityLOG"
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +85,6 @@ class SettingsActivity : AppCompatActivity() {
         // Alto contraste
         val contrasteGuardado = AppConfig.isContrastModeEnabled()
         Log.d(TAG, "Contraste guardado: $contrasteGuardado")
-        binding.switchContraste.isChecked = contrasteGuardado
         // Aquí podrías aplicar inmediatamente tu tema de alto contraste si lo necesitas
 
         // Velocidad de voz
@@ -174,19 +175,6 @@ class SettingsActivity : AppCompatActivity() {
             vibrateHelper.vibrate()
         }
 
-        // Switch alto contraste
-        binding.switchContraste.setOnCheckedChangeListener { _, isChecked ->
-            val mode = if (isChecked) {
-                AppCompatDelegate.MODE_NIGHT_YES
-            } else {
-                AppCompatDelegate.MODE_NIGHT_NO
-            }
-
-            AppCompatDelegate.setDefaultNightMode(mode)
-
-            recreate()
-        }
-
         // Velocidad de voz RadioGroup
         binding.rgVelocidad.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
@@ -215,8 +203,13 @@ class SettingsActivity : AppCompatActivity() {
 
         // Switch modo oscuro
         binding.switchTheme.setOnCheckedChangeListener { _, isChecked ->
-            // TODO: activar/desactivar modo oscuro
+            AppConfig.setDarkMode(isChecked)
+            Log.d("YOLOLOLO", "${AppConfig.toString()}")
+
         }
+
+
+
 
         // Botón restaurar configuración
         binding.btnResetDefaults.setOnClickListener {
@@ -258,9 +251,6 @@ class SettingsActivity : AppCompatActivity() {
                     else -> "continua"
                 }
                 AppConfig.setVibrationType(tipo)
-
-                // 4. Alto contraste
-                AppConfig.setContrastMode(binding.switchContraste.isChecked)
 
                 // 5. Velocidad de voz
                 val velocidad = when (binding.rgVelocidad.checkedRadioButtonId) {
@@ -315,12 +305,6 @@ class SettingsActivity : AppCompatActivity() {
         binding.tvTipoLabel.setOnClickListener {
             Log.d(TAG, "tvTipoLabel clickeado")
             ttsHelper.speak("Elige el tipo de vibración: continua, intermitente o pulsante")
-        }
-
-        // Etiqueta “Alto contraste”
-        binding.tvContrasteLabel.setOnClickListener {
-            Log.d(TAG, "tvContrasteLabel clickeado")
-            ttsHelper.speak("Activa o desactiva el modo de alto contraste")
         }
 
         // Etiqueta “Velocidad de voz”

@@ -327,6 +327,7 @@ class ChatActivity : AppCompatActivity() {
                 Log.d(TAG, "Proceso por gemini")
                 subirImagen(currentImageFile!!, texto)
                 binding.buttonCamera.isEnabled = true
+                haveImage = false
             }
             else if (!haveImage) {
                 Log.d(TAG, "Proceso por groq")

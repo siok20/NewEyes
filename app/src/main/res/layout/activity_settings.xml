@@ -128,21 +128,6 @@
         </RadioGroup>
 
 
-        <!-- - ALTO CONTRASTE - -->
-        <TextView
-            android:id="@+id/tvContrasteLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Activar alto contraste"
-            android:textColor="?attr/colorOnBackground"
-            android:textSize="16sp" />
-
-        <Switch
-            android:id="@+id/switchContraste"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#777777"
-            android:layout_marginBottom="24dp" />
 
         <!-- - VELOCIDAD DE VOZ (TTS) - -->
         <TextView
@@ -215,6 +200,18 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp" />
 
+        <!-- - GUARDAR Y VOLVER - -->
+        <Button
+            android:id="@+id/btnGuardar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Guardar y volver"
+            android:backgroundTint="#2196F3"
+            android:textColor="?attr/colorOnBackground"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+
         <!-- - RESTAURAR A PREDETERMINADOS - -->
         <Button
             android:id="@+id/btnResetDefaults"
@@ -226,16 +223,6 @@
             android:textColor="?attr/colorOnBackground"
             android:textStyle="bold" />
 
-        <!-- - GUARDAR Y VOLVER - -->
-        <Button
-            android:id="@+id/btnGuardar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Guardar y volver"
-            android:backgroundTint="#2196F3"
-            android:textColor="?attr/colorOnBackground"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
 
     </LinearLayout>
 </ScrollView>
