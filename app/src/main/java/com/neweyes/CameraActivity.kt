@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -21,10 +20,10 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.neweyes.camera.CameraViewModel
-import com.neweyes.databinding.ActivityVoiceBinding
+import com.neweyes.databinding.ActivityCameraBinding
 import com.neweyes.voice.VoiceViewModel
 
-class VoiceActivity : AppCompatActivity(), OnMapReadyCallback {
+class CameraActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1001
@@ -32,7 +31,7 @@ class VoiceActivity : AppCompatActivity(), OnMapReadyCallback {
         private const val CAMERA_PERMISSION_REQUEST_CODE = 1003
     }
 
-    private lateinit var binding: ActivityVoiceBinding
+    private lateinit var binding: ActivityCameraBinding
     private val cameraViewModel: CameraViewModel by viewModels()
     private val voiceViewModel: VoiceViewModel by viewModels()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -40,7 +39,7 @@ class VoiceActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityVoiceBinding.inflate(layoutInflater)
+        binding = ActivityCameraBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)

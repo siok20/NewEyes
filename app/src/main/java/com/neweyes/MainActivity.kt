@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
 
         // Correctamente vinculamos el botón por ID
         binding.btnVoiceNav.setOnClickListener {
-            val intent = Intent(this, VoiceActivity::class.java)
+            val intent = Intent(this, CameraActivity::class.java)
             startActivity(intent)
         }
 
