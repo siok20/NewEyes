@@ -318,7 +318,7 @@ class ChatActivity : AppCompatActivity() {
 
             val request = ChatRequest(
                 model = "meta-llama/llama-4-scout-17b-16e-instruct",
-                messages = listOf(ChatMessage(role = "user", content = texto))
+                messages = chatAdapter.getMessages()
             )
 
             Log.d(TAG, "Enviando solicitud a Groq")
