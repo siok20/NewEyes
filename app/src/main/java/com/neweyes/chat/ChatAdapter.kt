@@ -11,6 +11,7 @@ import com.neweyes.databinding.ItemMessageUserBinding
 import com.neweyes.databinding.ItemMessageImageUserBinding
 import com.squareup.picasso.Picasso
 import android.widget.ImageView
+import com.neweyes.chat.groq.ChatMessage
 import com.neweyes.databinding.ItemMessageImageOtherBinding
 
 /**
@@ -99,10 +100,19 @@ class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         notifyDataSetChanged()
     }
 
+    fun getMessages(): List<ChatMessage>{
+        return messages
+            .filter { it.imageUri == null && !it.text.isNullOrBlank() }
+            .takeLast(6)
+            .map {
+                ChatMessage(
+                    role = if (it.isUser) "user" else "system",
+                    content = it.text ?: ""
+                )
+            }
+    }
+
     fun setMessages(newMessages: List<Message>) {
-        messages.clear()
-        messages.addAll(newMessages)
-        notifyDataSetChanged()
     }
 
 

@@ -8,7 +8,7 @@ import retrofit2.http.POST
 interface GroqApi {
     @Headers(
         "Content-Type: application/json",
-        "Authorization: Bearer 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"
+        "Authorization: Bearer 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"
     )
     @POST("openai/v1/chat/completions")
     fun getChatCompletion(@Body request: ChatRequest): Call<ChatResponse>
