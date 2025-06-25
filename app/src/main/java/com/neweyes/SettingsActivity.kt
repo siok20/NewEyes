@@ -176,7 +176,15 @@ class SettingsActivity : AppCompatActivity() {
 
         // Switch alto contraste
         binding.switchContraste.setOnCheckedChangeListener { _, isChecked ->
-            // TODO: manejar activación/desactivación alto contraste
+            val mode = if (isChecked) {
+                AppCompatDelegate.MODE_NIGHT_YES
+            } else {
+                AppCompatDelegate.MODE_NIGHT_NO
+            }
+
+            AppCompatDelegate.setDefaultNightMode(mode)
+
+            recreate()
         }
 
         // Velocidad de voz RadioGroup

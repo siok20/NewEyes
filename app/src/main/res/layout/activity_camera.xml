@@ -4,31 +4,17 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <!-- Texto en la parte superior: Destino -->
-    <TextView
-        android:id="@+id/tvDestino"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/destino"
-        android:textColor="#60D2C6"
-        android:textSize="30sp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp" />
-
+    <!-- Vista de cámara que ocupa todo el espacio encima del bottomControls -->
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_below="@id/tvDestino"
+        android:layout_height="match_parent"
         android:layout_above="@id/bottomControls"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_alignParentTop="true"
         android:scaleType="fitCenter"
-        android:background="#777777"/>
+        android:background="#777777" />
 
-
-    <!-- Layout horizontal para vista de mapa y mic -->
+    <!-- Controles inferiores -->
     <LinearLayout
         android:id="@+id/bottomControls"
         android:layout_width="match_parent"
@@ -53,8 +39,9 @@
         <FrameLayout
             android:id="@+id/mapContainer"
             android:layout_width="0dp"
-            android:layout_height="120dp"
+            android:layout_height="180dp"
             android:layout_weight="1"
             android:background="#333" />
     </LinearLayout>
+
 </RelativeLayout>

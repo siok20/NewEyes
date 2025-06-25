@@ -11,8 +11,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/chat_root"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/chat_background">
+        android:layout_height="match_parent">
 
         <!-- Toolbar superior -->
         <com.google.android.material.appbar.MaterialToolbar

@@ -82,9 +82,6 @@ class CameraActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         // 2) Observadores para reconocimiento de voz
-        voiceViewModel.voiceText.observe(this) { text ->
-            binding.tvDestino.text = text
-        }
         voiceViewModel.error.observe(this) { errorMsg ->
             Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
         }
