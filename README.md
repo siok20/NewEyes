@@ -1,0 +1,38 @@
+# NewEyes 👁️📱
+
+**NewEyes** es una aplicación Android nativa desarrollada en **Kotlin**, diseñada para asistir a personas con discapacidad visual. Integra tecnologías de procesamiento de audio e imagen, APIs de IA generativa y un backend propio para brindar navegación asistida, análisis del entorno y detección de emociones en tiempo real.
+
+---
+
+## 🎯 Objetivo
+
+El propósito de NewEyes es proporcionar un **asistente inteligente** que ayude a personas invidentes a:
+- Navegar por su entorno físico usando la cámara del móvil.
+- Obtener descripciones habladas del entorno gracias a IA generativa.
+---
+
+## ⚙️ Tecnologías utilizadas
+
+### 👨‍💻 Frontend
+- Android nativo con **Kotlin**
+- **ViewBinding** para UI segura y eficiente
+- **Retrofit** para comunicación HTTP
+- **TextToSpeech** para salida de voz
+- Permisos de cámara y almacenamiento gestionados
+
+### 🤖 Backend
+- **FastAPI** en Python para recibir imágenes y datos
+- Integración con:
+  - **Groq** para procesamiento de voz e imagen
+  - **Gemini API** (Google) para descripción de entorno
+    
+---
+
+## 🧪 Funcionalidades principales
+
+- 🎙 **Asistencia por Voz**: Interacción por comandos de voz.
+- 📸 **Captura Inteligente**: Toma imágenes automáticamente y las describe o analiza.
+- 🧭 **Navegación Asistida**: Usa la cámara para detectar objetos o leer textos del entorno.
+- 🌐 **Comunicación en Tiempo Real** con rooms de SocketIO.
+
+---
