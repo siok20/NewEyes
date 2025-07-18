@@ -38,8 +38,15 @@ class MainActivity : AppCompatActivity() {
 
         // Correctamente vinculamos el botón por ID
         binding.btnVoiceNav.setOnClickListener {
-            val intent = Intent(this, CameraActivity::class.java)
-            startActivity(intent)
+            Log.d("ChatTest", "Botón presionado")
+            try {
+                val intent = Intent(this, CameraActivity::class.java)
+                Log.d("ChatTest", "Intent creado correctamente")
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e("ChatTest", "Error al abrir ChatActivity", e)
+                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
 
         binding.btnSettings.setOnClickListener {

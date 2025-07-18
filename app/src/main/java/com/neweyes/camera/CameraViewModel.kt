@@ -17,10 +17,14 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
         cameraManager?.startCamera()
     }
 
-    override fun onCleared() {
-        super.onCleared()
+    fun clean(){
         cameraManager?.stopCamera()
         ttsHelper.shutdown()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        clean()
     }
 }
 

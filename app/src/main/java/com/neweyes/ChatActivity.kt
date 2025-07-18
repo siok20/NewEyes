@@ -518,6 +518,7 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        ttsHelper.shutdown()
         messageJob?.cancel()
     }
 }

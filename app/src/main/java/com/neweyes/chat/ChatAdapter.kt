@@ -100,8 +100,13 @@ class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         notifyDataSetChanged()
     }
 
-    fun getMessages(): List<ChatMessage>{
-        return messages
+    fun getMessages(): List<ChatMessage> {
+        val mensajeInicial = ChatMessage(
+            role = "system",
+            content = "Eres un asistente que ayuda a personas con discapacidad visual. Responde de forma clara, breve y natural. No uses enumeraciones, listas ni viñetas. Da la información en un solo párrafo continuo, fácil de leer y escuchar."
+        )
+
+        val mensajesFiltrados = messages
             .filter { it.imageUri == null && !it.text.isNullOrBlank() }
             .takeLast(6)
             .map {
@@ -110,7 +115,10 @@ class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                     content = it.text ?: ""
                 )
             }
+
+        return listOf(mensajeInicial) + mensajesFiltrados
     }
+
 
     fun setMessages(newMessages: List<Message>) {
     }

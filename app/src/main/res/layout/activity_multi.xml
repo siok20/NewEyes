@@ -87,28 +87,30 @@
 
         <ImageButton
             android:id="@+id/buttonMic"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginEnd="8dp"
             android:contentDescription="Micrófono"
-            android:src="@android:drawable/ic_menu_call"
+            android:src="@drawable/microphone"
+            android:scaleType="fitXY"
             app:layout_constraintEnd_toStartOf="@id/button_send"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:tint="@color/bubble_user" />
+            app:tint="#00B2FF" />
 
 
         <ImageButton
             android:id="@+id/button_send"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginEnd="8dp"
             android:contentDescription="Enviar"
-            android:src="@android:drawable/ic_menu_send"
+            android:src="@drawable/send"
+            android:scaleType="fitXY"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:tint="@color/bubble_user" />
+            app:tint="#00B2FF" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

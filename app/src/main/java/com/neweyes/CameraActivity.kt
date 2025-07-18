@@ -100,11 +100,18 @@ class CameraActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         // 4) Cargar Google Maps
-        val mapFragment = SupportMapFragment.newInstance()
-        supportFragmentManager.beginTransaction()
-            .replace(binding.mapContainer.id, mapFragment)
-            .commit()
-        mapFragment.getMapAsync(this)
+        val existingFragment = supportFragmentManager.findFragmentById(binding.mapContainer.id)
+        if (existingFragment == null) {
+            val mapFragment = SupportMapFragment.newInstance()
+            supportFragmentManager.beginTransaction()
+                .replace(binding.mapContainer.id, mapFragment)
+                .commit()
+            mapFragment.getMapAsync(this)
+
+        } else if (existingFragment is SupportMapFragment) {
+            existingFragment.getMapAsync(this)
+        }
+
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -112,12 +119,13 @@ class CameraActivity : AppCompatActivity(), OnMapReadyCallback {
             insets
         }
 
-        loadInitialData()
+
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         checkLocationPermissionAndEnable()
+        loadInitialData()
     }
     private fun loadInitialData() {
 
@@ -316,4 +324,20 @@ class CameraActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            val mapFragment = supportFragmentManager.findFragmentById(binding.mapContainer.id)
+            mapFragment?.let {
+                supportFragmentManager.beginTransaction()
+                    .remove(it)
+                    .commitAllowingStateLoss()
+            }
+        } catch (e: Exception) {
+            Log.e("MapCleanup", "Error al liberar el mapa: ${e.message}")
+        }
+        cameraViewModel.clean()
+    }
+
 }
