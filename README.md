@@ -36,3 +36,12 @@ El propósito de NewEyes es proporcionar un **asistente inteligente** que ayude 
 - 🌐 **Comunicación en Tiempo Real** con rooms de SocketIO.
 
 ---
+
+## 🔑 Configuración de claves
+
+El repositorio no incluye claves ni keystore. Antes de compilar, reemplaza estos placeholders:
+
+- `app/src/main/java/com/neweyes/chat/groq/GroqApi.kt`: `YOUR_GROQ_API_KEY` → tu API key de Groq.
+- `app/src/main/AndroidManifest.xml`: `YOUR_GOOGLE_MAPS_API_KEY` → tu API key de Google Maps.
+- `gradle.properties`: `CHANGE_ME` en `RELEASE_STORE_PASSWORD` y `RELEASE_KEY_PASSWORD` → las contraseñas de tu keystore.
+- Genera tu propio keystore con `keytool`, usando el archivo y alias de `RELEASE_STORE_FILE` y `RELEASE_KEY_ALIAS`; `*.jks` y `*.keystore` están en `.gitignore`.
