@@ -37,6 +37,7 @@ import com.neweyes.data.DatabaseModule
 import com.neweyes.data.entity.ChatEntity
 import com.neweyes.data.entity.MessageEntity
 import com.neweyes.databinding.ActivityChatBinding
+import com.neweyes.vibration.VibrationManager
 import com.neweyes.voice.TextToSpeechHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -71,6 +72,7 @@ class ChatActivity : AppCompatActivity() {
 
     private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var ttsHelper : TextToSpeechHelper
+    private lateinit var vibrateHelper : VibrationManager
 
     private val REQUEST_RECORD_AUDIO_PERMISSION = 100
     private val CAMERA_PERMISSION_REQUEST_CODE = 1003
@@ -111,6 +113,7 @@ class ChatActivity : AppCompatActivity() {
         })
 
         ttsHelper = TextToSpeechHelper(this)
+        vibrateHelper = VibrationManager(this)
 
         binding.recyclerViewChatHistory.layoutManager = LinearLayoutManager(this)
         binding.recyclerViewChatHistory.adapter = chatHistoryAdapter
@@ -151,6 +154,7 @@ class ChatActivity : AppCompatActivity() {
                     binding.recyclerViewMessages.scrollToPosition(chatAdapter.itemCount - 1)
 
                     say("Imagen subida correctamente")
+                    vibrateHelper.vibrate()
                     haveImage = true
                     binding.buttonCamera.isEnabled = false
                     receiveMessageFromOther("Ahora descríbeme que quieres que haga com la imagen")
@@ -300,6 +304,7 @@ class ChatActivity : AppCompatActivity() {
         val texto = binding.editTextMessage.text.toString().trim()
         if (texto.isNotEmpty()) {
             Log.d(TAG, "sendMessage: enviando mensaje -> $texto en el chat $currentChatId")
+            vibrateHelper.vibrate()
             say(texto)
             val newMessage = Message(text = texto, isUser = true)
             chatAdapter.addMessage(newMessage)
@@ -379,22 +384,23 @@ class ChatActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val result = response.body()
 
-                    Log.d(TAG, "✅ Resultado: ${result?.response}")
+                    Log.d(TAG, "Resultado: ${result?.response}")
                     receiveMessageFromOther(result?.response.toString())
                     Toast.makeText(this@ChatActivity, result?.response, Toast.LENGTH_LONG).show()
                 } else {
-                    Log.e(TAG, "❌ Error en la respuesta: ${response.errorBody()?.string()}")
+                    Log.e(TAG, "Error en la respuesta: ${response.errorBody()?.string()}")
                 }
             }
 
             override fun onFailure(call: Call<ImageChatResponse>, t: Throwable) {
-                Log.e(TAG, "❌ Error en la solicitud: ${t.message}")
+                Log.e(TAG, "Error en la solicitud: ${t.message}")
             }
         })
     }
 
 
     fun receiveMessageFromOther(content: String) {
+        vibrateHelper.vibrate()
         Log.d(TAG, "receiveMessageFromOther: mensaje recibido -> $content")
         val incoming = Message(text = content, isUser = false)
         chatAdapter.addMessage(incoming)
