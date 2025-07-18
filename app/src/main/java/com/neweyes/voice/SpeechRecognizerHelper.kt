@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import com.neweyes.config.AppConfig
 import java.util.Locale
 
 class SpeechRecognizerHelper(

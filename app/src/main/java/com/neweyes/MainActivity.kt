@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.neweyes.camera.Posiciones
+import com.neweyes.config.AppConfig
 import com.neweyes.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {

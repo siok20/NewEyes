@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.neweyes.config.AppConfig
 import com.neweyes.databinding.ActivitySettingsBinding
 import com.neweyes.vibration.VibrationIntensity
 import com.neweyes.vibration.VibrationManager

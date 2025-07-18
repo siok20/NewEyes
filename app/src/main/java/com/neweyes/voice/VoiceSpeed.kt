@@ -1,5 +1,7 @@
 package com.neweyes.voice
 
+import com.neweyes.config.AppConfig
+
 enum class VoiceSpeed(val rate: Float) {
     SLOW(0.5f),
     NORMAL(1.0f),

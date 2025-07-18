@@ -1,5 +1,7 @@
 package com.neweyes.vibration
 
+import com.neweyes.config.AppConfig
+
 enum class VibrationType {
     CONTINUA, INTERMITENTE, PULSANTE;
 

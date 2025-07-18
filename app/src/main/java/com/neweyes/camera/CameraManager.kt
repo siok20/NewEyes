@@ -90,16 +90,16 @@ class CameraManager(
             override fun onResponse(call: Call<ImageAnalyzeResponse>, response: Response<ImageAnalyzeResponse>) {
                 if (response.isSuccessful) {
                     val result = response.body()
-                    Log.d("CAMERA_VIEWER", "✅ Resultado: ${result?.response}")
+                    Log.d("CAMERA_VIEWER", "Resultado: ${result?.response}")
                     textToSpeechHelper.speak(result?.response.toString())
 
                 } else {
-                    Log.e("CAMERA_VIEWER", "❌ Error en la respuesta: ${response.errorBody()?.string()}")
+                    Log.e("CAMERA_VIEWER", "Error en la respuesta: ${response.errorBody()?.string()}")
                 }
             }
 
             override fun onFailure(call: Call<ImageAnalyzeResponse>, t: Throwable) {
-                Log.e("CAMERA_VIEWER", "❌ Error en la solicitud: ${t.message}")
+                Log.e("CAMERA_VIEWER", "Error en la solicitud: ${t.message}")
             }
         })
     }
@@ -142,7 +142,6 @@ class CameraManager(
             }
         }
 
-        // Ahora comprimimos a JPEG
         val yuvImage = YuvImage(
             nv21,
             ImageFormat.NV21,

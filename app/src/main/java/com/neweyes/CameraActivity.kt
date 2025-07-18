@@ -118,9 +118,6 @@ class CameraActivity : AppCompatActivity(), OnMapReadyCallback {
     }
     private fun loadInitialData() {
 
-        // Parte 1: Cargar datos en la lista local para comenzar.
-        // Estos datos se usarán si Firebase aún no ha cargado.
-        // Iniciar la lectura de ubicaciones desde Firebase
         readLocationsFromFirebase()
     }
     private fun showAddLocationDialog(latLng: LatLng) {
@@ -181,10 +178,8 @@ class CameraActivity : AppCompatActivity(), OnMapReadyCallback {
                         locationsAdapter.add(it.description) // Añadir la dirección al adaptador del ListView
                     }
                 }
-                locationsAdapter.notifyDataSetChanged() // Notificar al adaptador que los datos han cambiado
-                createMarkers() // Volver a dibujar los marcadores con los datos actualizados de Firebase
-                // Este bloque es un fallback, si Firebase está vacío, usa la lista local.
-                // Se ejecuta después de intentar leer de Firebase.
+                locationsAdapter.notifyDataSetChanged()
+                createMarkers()
                 if (firebaseLocations.isEmpty() ) {
                     fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                         if (location != null) {

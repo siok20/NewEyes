@@ -12,7 +12,7 @@ data class ChatRequest(
 
 data class ChatResponse(
     val id: String,
-    val objectType: String?, // dependiendo del API
+    val objectType: String?,
     val choices: List<Choice>?
 )
 

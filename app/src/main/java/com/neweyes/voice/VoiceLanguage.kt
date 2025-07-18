@@ -1,5 +1,6 @@
 package com.neweyes.voice
 
+import com.neweyes.config.AppConfig
 import java.util.Locale
 
 enum class VoiceLanguage(val locale: Locale) {

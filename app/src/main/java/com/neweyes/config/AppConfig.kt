@@ -1,3 +1,5 @@
+package com.neweyes.config
+
 import android.content.Context
 
 object AppConfig {
