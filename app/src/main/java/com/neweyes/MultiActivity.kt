@@ -22,6 +22,7 @@ import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.neweyes.chat.*
 import com.neweyes.databinding.ActivityMultiBinding
+import com.neweyes.vibration.VibrationManager
 import com.neweyes.voice.TextToSpeechHelper
 import kotlinx.coroutines.Job
 import java.io.File
@@ -51,6 +52,7 @@ class MultiActivity : AppCompatActivity() {
 
     private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var ttsHelper : TextToSpeechHelper
+    private lateinit var vibrateHelper : VibrationManager
 
     private val REQUEST_RECORD_AUDIO_PERMISSION = 100
     private val CAMERA_PERMISSION_REQUEST_CODE = 1003
@@ -104,6 +106,7 @@ class MultiActivity : AppCompatActivity() {
 
         binding = ActivityMultiBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        vibrateHelper = VibrationManager(this)
 
         userName = intent.getStringExtra("username").toString()
         numberRoom = intent.getIntExtra("room", 0)
@@ -246,6 +249,7 @@ class MultiActivity : AppCompatActivity() {
     private fun sendMessage() {
         val texto = binding.editTextMessage.text.toString().trim()
         if (texto.isNotEmpty()) {
+            vibrateHelper.vibrate()
             Log.d(TAG, "sendMessage: enviando mensaje")
             say(texto)
             val newMessage = Message(text = texto, isUser = true)
@@ -274,6 +278,7 @@ class MultiActivity : AppCompatActivity() {
         val incoming = Message(text = content, isUser = false, userName = userName)
         chatAdapter.addMessage(incoming)
 
+        vibrateHelper.vibrate()
         say(content)
 
         binding.recyclerViewMessages.scrollToPosition(chatAdapter.itemCount - 1)
