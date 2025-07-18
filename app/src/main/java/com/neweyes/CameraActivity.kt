@@ -33,6 +33,7 @@ import com.google.firebase.database.ValueEventListener
 import com.neweyes.camera.CameraViewModel
 import com.neweyes.camera.Posiciones
 import com.neweyes.databinding.ActivityCameraBinding
+import com.neweyes.vibration.VibrationManager
 import com.neweyes.voice.TextToSpeechHelper
 import com.neweyes.voice.VoiceViewModel
 
@@ -51,6 +52,7 @@ class CameraActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
 
     private lateinit var ttsHelper: TextToSpeechHelper
+    private lateinit var vibrateHelper : VibrationManager
 
     private lateinit var database: DatabaseReference
     private val firebaseLocations = mutableListOf<Posiciones>()
@@ -67,6 +69,7 @@ class CameraActivity : AppCompatActivity(), OnMapReadyCallback {
         locationsAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf<String>())
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        vibrateHelper = VibrationManager(this)
 
         // 1) Verificar permiso de cámara antes de inicializar
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)

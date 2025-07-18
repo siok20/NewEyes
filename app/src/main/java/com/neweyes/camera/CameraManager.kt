@@ -15,6 +15,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.camera.view.PreviewView
 import com.neweyes.camera.service.ImageAnalyzeResponse
 import com.neweyes.camera.service.analyzeApi
+import com.neweyes.vibration.VibrationManager
 import com.neweyes.vision.FrameAnalyzer
 import com.neweyes.voice.TextToSpeechHelper
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -32,7 +33,8 @@ class CameraManager(
     private val context: Context,
     private val lifecycleOwner: LifecycleOwner,
     private val previewView: PreviewView,
-    val textToSpeechHelper: TextToSpeechHelper
+    val textToSpeechHelper: TextToSpeechHelper,
+    val vibrateHelper : VibrationManager
 ) {
     private lateinit var cameraExecutor: ExecutorService
     private var lastObstacleTime = 0L
@@ -64,6 +66,7 @@ class CameraManager(
                         file.outputStream().use { output ->
                             output.write(jpegBytes)
                         }
+                        vibrateHelper.vibrate()
                         analizarImagen(file)
                         Log.d("CAMERA_VIEWER", "Encontrado")
                         lastObstacleTime = now
